@@ -28,6 +28,7 @@
     background: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%);
   }
   header h1 { margin: 0; font-size: 32px; font-weight: 400; color: #444; }
+  header .logo { display: block; line-height: 0; }
   .userbox {
     background: #f4f4f4;
     border-radius: 3px;
@@ -69,7 +70,20 @@
   .board .desc { margin-top: 3px; font-size: 14px; color: #666; }
   .board .stats { font-size: 15px; color: #555; line-height: 22px; margin-top: 2px; }
   .board .stats small { font-size: 14px; color: #666; display: block; }
-  .board .last { font-size: 14px; color: #555; line-height: 20px; }
+  .board .last { font-size: 14px; color: #555; line-height: 20px; display: flex; align-items: center; gap: 10px; }
+  .board .last .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4a82b8, #77a6d0);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
   .board .last a:first-child { font-size: 14px; }
 
   .stats-section { margin: 40px 5px 0; }
@@ -173,7 +187,7 @@
 <body>
 <div class="wrapper">
   <header>
-    <h1>HyperCS Demo Forum</h1>
+    <h1><a class="logo" href="home.html"><img src="../web/public/logo.svg" alt="HyperCS" height="48"></a></h1>
     <div class="userbox">Hello, <a href="settings.html"><strong>Administrator</strong></a> | <a href="#">Logout</a></div>
   </header>
 
@@ -213,9 +227,12 @@
         </div>
         <div class="stats">1 topic<small>1 post</small></div>
         <div class="last">
-          <a href="#">Welcome to HyperCS!</a><br>
-          by <a href="#">Administrator</a><br>
-          7 days ago
+          <div class="avatar" title="Administrator">A</div>
+          <div>
+            <a href="#">Welcome to HyperCS!</a><br>
+            by <a href="#">Administrator</a><br>
+            7 days ago
+          </div>
         </div>
       </div>
       <div class="board">
@@ -248,7 +265,7 @@
   </main>
 
   <footer>
-    <div>Powered by <a href="#">HyperCS</a> | &copy; 2026 Robert Monden</div>
+    <div>Powered by <a href="https://robertmonden.com" target="_blank" rel="noopener noreferrer">HyperCS</a> | &copy; 2026 Robert Monden</div>
     <details class="lang">
       <summary aria-label="Language"><span class="flag flag-us"></span>English (US)</summary>
       <ul class="lang-menu">

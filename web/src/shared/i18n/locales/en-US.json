@@ -1,0 +1,149 @@
+{
+    "app": {
+        "name": "HyperCS"
+    },
+    "nav": {
+        "home": "Home",
+        "forum": "Forum",
+        "login": "Login",
+        "logout": "Logout"
+    },
+    "userbox": {
+        "login": "Login",
+        "register": "Register",
+        "hello": "Hello,",
+        "logout": "Logout"
+    },
+    "footer": {
+        "poweredBy": "Powered by <link>HyperCS</link> | © {{year}} Robert Monden",
+        "language": "Language"
+    },
+    "home": {
+        "title": "Welcome to HyperCS",
+        "intro": "A friendly place to share ideas, learn from each other and build something together.",
+        "learnMore": "Learn more",
+        "latestNews": "Latest news"
+    },
+    "auth": {
+        "login": {
+            "heading": "Login",
+            "title": "Welcome back",
+            "intro": "Enter your credentials to access your account.",
+            "submit": "Login",
+            "noAccount": "Don't have an account yet?",
+            "register": "Register"
+        },
+        "register": {
+            "heading": "Register",
+            "title": "Create an account",
+            "intro": "Join the community in just a few steps.",
+            "submit": "Register",
+            "haveAccount": "Already have an account?",
+            "login": "Login",
+            "terms": "I agree to the <link>terms of service</link>"
+        },
+        "username": "Username",
+        "password": "Password",
+        "email": "Email address",
+        "confirmPassword": "Confirm password",
+        "remember": "Remember me"
+    },
+    "forum": {
+        "boardIndex": "Board index",
+        "topics_one": "{{count}} topic",
+        "topics_other": "{{count}} topics",
+        "posts_one": "{{count}} post",
+        "posts_other": "{{count}} posts",
+        "by": "by",
+        "newTopic": "New topic",
+        "columns": {
+            "topic": "Topic",
+            "replies": "Replies",
+            "views": "Views",
+            "lastPost": "Last post"
+        },
+        "pinned": "Pinned",
+        "locked": "Locked",
+        "startedBy": "Started by",
+        "postReply": "Post reply",
+        "postCount": "Posts: {{count}}",
+        "joined": "Joined: {{when}}",
+        "admin": "Admin",
+        "quote": "Quote",
+        "edit": "Edit",
+        "delete": "Delete",
+        "report": "Report",
+        "replyHeading": "Post a reply",
+        "replyPlaceholder": "Write your reply...",
+        "submit": "Submit",
+        "stats": {
+            "title": "Statistics",
+            "intro": "A quick look at what's going on in the community.",
+            "topics": "Topics",
+            "posts": "Posts",
+            "members": "Members",
+            "boards": "Boards",
+            "newestMember": "Newest member:",
+            "latestPost": "Latest post:",
+            "usersOnline_one": "{{count}} user online:",
+            "usersOnline_other": "{{count}} users online:"
+        }
+    },
+    "settings": {
+        "title": "Settings",
+        "nav": {
+            "profile": "Profile",
+            "account": "Account",
+            "password": "Password",
+            "preferences": "Preferences"
+        },
+        "profile": {
+            "title": "Profile",
+            "intro": "This information is visible to other members.",
+            "avatar": "Avatar",
+            "upload": "Upload new picture",
+            "remove": "Remove",
+            "hint": "JPG or PNG, max. 1 MB.",
+            "displayName": "Display name",
+            "location": "Location",
+            "website": "Website",
+            "about": "About me",
+            "save": "Save profile"
+        },
+        "account": {
+            "title": "Account",
+            "intro": "Your personal information. This is never shown publicly.",
+            "firstName": "First name",
+            "lastName": "Last name",
+            "username": "Username",
+            "usernameHint": "Usernames cannot be changed.",
+            "email": "Email address",
+            "save": "Save account"
+        },
+        "password": {
+            "title": "Change password",
+            "intro": "Choose a strong password you don't use elsewhere.",
+            "current": "Current password",
+            "new": "New password",
+            "confirm": "Confirm new password",
+            "save": "Change password"
+        },
+        "preferences": {
+            "title": "Preferences",
+            "intro": "Customize how the community works for you.",
+            "language": "Language",
+            "timezone": "Time zone",
+            "notifications": "Notifications",
+            "notifyReply": "Email me when someone replies to my topics",
+            "notifyQuote": "Email me when someone quotes my posts",
+            "privacy": "Privacy",
+            "showOnline": "Show me in the list of users online",
+            "save": "Save preferences"
+        }
+    },
+    "api": {
+        "ok": "API status: online",
+        "down": "API status: unreachable",
+        "loading": "API status: checking…"
+    }
+}

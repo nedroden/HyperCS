@@ -1,0 +1,17 @@
+/* Default theme. A theme is a folder that provides every stylesheet below; swap the import in app/themes/index.ts to change it. */
+@import './tokens.css';
+@import './base.css';
+@import './layout.css';
+@import './header.css';
+@import './footer.css';
+@import './language-switcher.css';
+@import './flag.css';
+@import './home.css';
+@import './avatar.css';
+@import './breadcrumbs.css';
+@import './pagination.css';
+@import './auth.css';
+@import './settings.css';
+@import './forum.css';
+@import './topic.css';
+@import './api-status.css';

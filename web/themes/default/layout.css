@@ -1,0 +1,16 @@
+.wrapper {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+.site-main {
+    background: var(--color-bg-content);
+    padding: 20px 20px 25px;
+    min-height: 480px;
+}
+
+.page-title {
+    margin: 22px 5px 28px;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-heading);
+}

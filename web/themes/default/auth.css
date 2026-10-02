@@ -1,0 +1,40 @@
+.login-box {
+    max-width: 460px;
+    margin: 0 auto;
+}
+.login-head {
+    background: var(--color-bg-section);
+    padding: 15px;
+}
+.login-head h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+}
+.login-head p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #222;
+}
+.login-box form {
+    padding: 20px 15px;
+    border-bottom: 1px solid var(--color-border);
+}
+.login-box input[type='text'],
+.login-box input[type='email'],
+.login-box input[type='password'] {
+    margin-bottom: 18px;
+}
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+.login-alt {
+    padding: 14px 15px;
+    font-size: 14px;
+    color: #666;
+}

@@ -1,0 +1,39 @@
+.site-header {
+    height: 101px;
+    padding: 0 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--gradient-header);
+}
+.site-header .logo {
+    display: block;
+    line-height: 0;
+}
+.site-header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 400;
+}
+.userbox {
+    background: #f4f4f4;
+    border-radius: 3px;
+    padding: 10px;
+    font-size: 16px;
+}
+.userbox a {
+    color: var(--color-text);
+}
+
+.site-nav {
+    height: 40px;
+    background: var(--gradient-nav);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+.site-nav a {
+    color: #fff;
+    font-size: 14px;
+    padding: 0 12px;
+}

@@ -1,0 +1,21 @@
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+    margin: 20px 5px 0;
+    font-size: 14px;
+}
+.pagination a,
+.pagination span {
+    padding: 6px 11px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+.pagination .current {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+.pagination .disabled {
+    color: #aaa;
+}

@@ -1,0 +1,30 @@
+.avatar {
+    background: linear-gradient(135deg, #4a82b8, #77a6d0);
+    color: #fff;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.avatar-sm {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+}
+.avatar-md {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+}
+.avatar-lg {
+    width: 64px;
+    height: 64px;
+    font-size: 28px;
+}
+.avatar-square {
+    border-radius: 3px;
+}
+.avatar-round {
+    border-radius: 50%;
+}

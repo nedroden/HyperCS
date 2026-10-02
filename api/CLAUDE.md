@@ -55,6 +55,7 @@ Categories → Boards → Topics → Posts, plus Users (roles, e.g. admin), CMS 
 
 - Unit tests next to the code (`#[cfg(test)]`); integration tests in `tests/` that run the real router against a test database (use a fresh schema/transaction per test).
 - Every endpoint gets at least a happy-path and an authorization-failure test.
+- Formatting uses rustfmt defaults with `tab_spaces = 4` (`rustfmt.toml`); linting uses clippy with warnings denied. The root scripts `./format.sh api` and `./lint.sh api` run them.
 - Before finishing a change, all of these must pass:
 
 ```bash

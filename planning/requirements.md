@@ -11,7 +11,7 @@ HyperCS is a web application combining a small CMS (static-style content pages) 
 ## 2. Global layout and navigation
 
 - **R-G1** Every page uses the same layout: header, main navigation bar, content area, footer.
-- **R-G2** The header shows the site name. On forum pages it reads "HyperCS Demo Forum" (the name is configurable); on CMS and account pages it reads "HyperCS".
+- **R-G2** The header shows the HyperCS logo (full logo, 48px high) at the top left on every page, including forum pages. The logo links to the homepage and has "HyperCS" as its alt text. The forum no longer shows a separate "Demo Forum" title in the header.
 - **R-G3** The header contains a user box on the right:
   - Logged in: "Hello, **{display name}** | Logout", where the display name links to the settings page.
   - Logged out: "Login | Register".
@@ -74,7 +74,7 @@ HyperCS is a web application combining a small CMS (static-style content pages) 
 ### 5.2 Board index
 - **R-F3** The board index lists all categories, each with its name, description and boards.
 - **R-F4** Each board row shows: linked name, description, topic count, post count.
-- **R-F5** Each board row shows its last post: topic title (linked), author (linked) and relative time. Boards without topics show no last-post info.
+- **R-F5** Each board row shows its last post: the avatar of the user who made the last reply, the topic title (linked), the author (linked) and the relative time. The avatar is round, vertically centered next to the text, and falls back to the author's initial on a colored background when the user has no uploaded picture. Boards without topics show no last-post info.
 - **R-F6** Counts use correct singular/plural wording ("1 topic", "0 topics", "1 post").
 - **R-F7** The board index ends with a Statistics section, visually distinct from category headers (blue gradient header) and spaced apart from the last category.
 - **R-F8** Statistics show totals for Topics, Posts, Members and Boards.

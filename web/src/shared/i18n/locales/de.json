@@ -1,0 +1,149 @@
+{
+    "app": {
+        "name": "HyperCS"
+    },
+    "nav": {
+        "home": "Startseite",
+        "forum": "Forum",
+        "login": "Anmelden",
+        "logout": "Abmelden"
+    },
+    "userbox": {
+        "login": "Anmelden",
+        "register": "Registrieren",
+        "hello": "Hallo,",
+        "logout": "Abmelden"
+    },
+    "footer": {
+        "poweredBy": "Betrieben mit <link>HyperCS</link> | © {{year}} Robert Monden",
+        "language": "Sprache"
+    },
+    "home": {
+        "title": "Willkommen bei HyperCS",
+        "intro": "Ein freundlicher Ort, um Ideen zu teilen, voneinander zu lernen und gemeinsam etwas aufzubauen.",
+        "learnMore": "Mehr erfahren",
+        "latestNews": "Neueste Nachrichten"
+    },
+    "auth": {
+        "login": {
+            "heading": "Anmelden",
+            "title": "Willkommen zurück",
+            "intro": "Gib deine Zugangsdaten ein, um auf dein Konto zuzugreifen.",
+            "submit": "Anmelden",
+            "noAccount": "Noch kein Konto?",
+            "register": "Registrieren"
+        },
+        "register": {
+            "heading": "Registrieren",
+            "title": "Konto erstellen",
+            "intro": "Werde in wenigen Schritten Teil der Community.",
+            "submit": "Registrieren",
+            "haveAccount": "Bereits ein Konto?",
+            "login": "Anmelden",
+            "terms": "Ich stimme den <link>Nutzungsbedingungen</link> zu"
+        },
+        "username": "Benutzername",
+        "password": "Passwort",
+        "email": "E-Mail-Adresse",
+        "confirmPassword": "Passwort bestätigen",
+        "remember": "Angemeldet bleiben"
+    },
+    "forum": {
+        "boardIndex": "Forenübersicht",
+        "topics_one": "{{count}} Thema",
+        "topics_other": "{{count}} Themen",
+        "posts_one": "{{count}} Beitrag",
+        "posts_other": "{{count}} Beiträge",
+        "by": "von",
+        "newTopic": "Neues Thema",
+        "columns": {
+            "topic": "Thema",
+            "replies": "Antworten",
+            "views": "Aufrufe",
+            "lastPost": "Letzter Beitrag"
+        },
+        "pinned": "Angeheftet",
+        "locked": "Gesperrt",
+        "startedBy": "Gestartet von",
+        "postReply": "Antworten",
+        "postCount": "Beiträge: {{count}}",
+        "joined": "Beigetreten: {{when}}",
+        "admin": "Admin",
+        "quote": "Zitieren",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "report": "Melden",
+        "replyHeading": "Antwort schreiben",
+        "replyPlaceholder": "Schreibe deine Antwort ...",
+        "submit": "Absenden",
+        "stats": {
+            "title": "Statistik",
+            "intro": "Ein kurzer Überblick über das Geschehen in der Community.",
+            "topics": "Themen",
+            "posts": "Beiträge",
+            "members": "Mitglieder",
+            "boards": "Foren",
+            "newestMember": "Neuestes Mitglied:",
+            "latestPost": "Letzter Beitrag:",
+            "usersOnline_one": "{{count}} Benutzer online:",
+            "usersOnline_other": "{{count}} Benutzer online:"
+        }
+    },
+    "settings": {
+        "title": "Einstellungen",
+        "nav": {
+            "profile": "Profil",
+            "account": "Konto",
+            "password": "Passwort",
+            "preferences": "Präferenzen"
+        },
+        "profile": {
+            "title": "Profil",
+            "intro": "Diese Informationen sind für andere Mitglieder sichtbar.",
+            "avatar": "Profilbild",
+            "upload": "Neues Bild hochladen",
+            "remove": "Entfernen",
+            "hint": "JPG oder PNG, max. 1 MB.",
+            "displayName": "Anzeigename",
+            "location": "Wohnort",
+            "website": "Webseite",
+            "about": "Über mich",
+            "save": "Profil speichern"
+        },
+        "account": {
+            "title": "Konto",
+            "intro": "Deine persönlichen Daten. Diese werden nie öffentlich angezeigt.",
+            "firstName": "Vorname",
+            "lastName": "Nachname",
+            "username": "Benutzername",
+            "usernameHint": "Benutzernamen können nicht geändert werden.",
+            "email": "E-Mail-Adresse",
+            "save": "Konto speichern"
+        },
+        "password": {
+            "title": "Passwort ändern",
+            "intro": "Wähle ein starkes Passwort, das du nirgendwo sonst verwendest.",
+            "current": "Aktuelles Passwort",
+            "new": "Neues Passwort",
+            "confirm": "Neues Passwort bestätigen",
+            "save": "Passwort ändern"
+        },
+        "preferences": {
+            "title": "Präferenzen",
+            "intro": "Passe an, wie die Community für dich funktioniert.",
+            "language": "Sprache",
+            "timezone": "Zeitzone",
+            "notifications": "Benachrichtigungen",
+            "notifyReply": "Per E-Mail benachrichtigen, wenn jemand auf meine Themen antwortet",
+            "notifyQuote": "Per E-Mail benachrichtigen, wenn jemand meine Beiträge zitiert",
+            "privacy": "Datenschutz",
+            "showOnline": "In der Liste der Benutzer online anzeigen",
+            "save": "Präferenzen speichern"
+        }
+    },
+    "api": {
+        "ok": "API-Status: online",
+        "down": "API-Status: nicht erreichbar",
+        "loading": "API-Status: wird geprüft …"
+    }
+}

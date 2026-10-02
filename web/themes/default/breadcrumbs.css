@@ -1,0 +1,8 @@
+.breadcrumbs {
+    font-size: 13px;
+    color: #777;
+    margin: 4px 5px 0;
+}
+.breadcrumbs span {
+    margin: 0 6px;
+}

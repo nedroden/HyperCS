@@ -18,7 +18,7 @@ A monorepo with two independent projects:
 | Path   | What                | Stack                          |
 | ------ | ------------------- | ------------------------------ |
 | `api/` | JSON web API        | Rust                           |
-| `web/` | Browser front-end   | React + TypeScript (SPA)       |
+| `web/` | Browser front-end   | React + TypeScript (SPA), Feature-Sliced Design       |
 
 The front-end talks to the API over HTTP/JSON only. No shared code between the two; the API contract is the interface (see "API contract").
 
@@ -54,6 +54,7 @@ Each project has its own `CLAUDE.md` with stack-specific rules – read it befor
 - Never commit secrets. Configuration comes from environment variables; keep a documented `.env.example` per project.
 - Write tests alongside features: unit/integration tests in `api/`, component tests in `web/`.
 - Commits: imperative, concise subject line. Don't commit unless asked.
+- Code style: formatters and linters use their recommended defaults with a 4-space indent (rustfmt, Prettier) and single quotes in the web code. Run `./format.sh` and `./lint.sh` before declaring a change done. `mocks/` and Markdown files are not auto-formatted.
 - Verify before declaring done: run the relevant build, lint and test commands (see the project `CLAUDE.md` files) and report real results.
 
 ## Commands
@@ -61,6 +62,11 @@ Each project has its own `CLAUDE.md` with stack-specific rules – read it befor
 Run from the repository root unless noted.
 
 ```bash
+# Lint and format (both projects; optionally pass `api` or `web`)
+./lint.sh
+./format.sh            # rewrites files
+./format.sh --check    # verify only
+
 # Full local stack
 docker compose up --build
 
