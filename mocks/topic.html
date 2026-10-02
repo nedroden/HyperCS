@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to HyperCS! – HyperCS Demo Forum</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #ebebeb;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    color: #444;
+    font-size: 15px;
+  }
+  a { color: #3c7ab5; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .wrapper { max-width: 1632px; margin: 0 auto; }
+
+  header {
+    height: 101px;
+    padding: 0 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%);
+  }
+  header h1 { margin: 0; font-size: 32px; font-weight: 400; color: #444; }
+  .userbox {
+    background: #f4f4f4;
+    border-radius: 3px;
+    padding: 10px;
+    font-size: 16px;
+    margin-top: -2px;
+  }
+  .userbox a { color: #444; }
+
+  nav {
+    height: 40px;
+    background: linear-gradient(90deg, #4a82b8 0%, #6a9bc8 70%, #77a6d0 100%);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+  }
+  nav a { color: #fff; font-size: 14px; padding: 0 12px; }
+
+  main { background: #fff; padding: 20px 20px 25px; }
+
+  .breadcrumbs { font-size: 13px; color: #777; margin: 4px 5px 0; }
+  .breadcrumbs span { margin: 0 6px; }
+
+  .title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin: 14px 5px 22px;
+  }
+  .title-row h2 { margin: 0; font-size: 32px; font-weight: 700; color: #000; }
+  .title-row p { margin: 4px 0 0; font-size: 14px; color: #666; }
+  .btn {
+    display: inline-block;
+    background: #4a82b8;
+    color: #fff;
+    padding: 9px 18px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .btn:hover { background: #3c70a3; text-decoration: none; }
+
+  .posts { margin: 0 5px; }
+  .post {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  .post-author {
+    background: #f7f7f7;
+    padding: 18px 15px;
+    font-size: 13px;
+    color: #666;
+    line-height: 20px;
+  }
+  .avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 3px;
+    background: linear-gradient(135deg, #4a82b8, #77a6d0);
+    color: #fff;
+    font-size: 28px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .avatar.alt { background: linear-gradient(135deg, #888, #bbb); }
+  .post-author .name { font-size: 16px; font-weight: 500; }
+  .role {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: #4a82b8;
+    color: #fff;
+    margin: 2px 0 6px;
+  }
+
+  .post-body { padding: 18px 20px; display: flex; flex-direction: column; }
+  .post-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #777;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 14px;
+  }
+  .post-content { font-size: 15px; line-height: 24px; color: #333; flex: 1; }
+  .post-content p { margin: 0 0 12px; }
+  .post-actions { margin-top: 10px; font-size: 13px; text-align: right; }
+  .post-actions a { margin-left: 14px; }
+
+  .pagination {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+    margin: 20px 5px 0;
+    font-size: 14px;
+  }
+  .pagination a, .pagination span {
+    padding: 6px 11px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+  }
+  .pagination .current { background: #4a82b8; border-color: #4a82b8; color: #fff; }
+  .pagination .disabled { color: #aaa; }
+
+  .reply {
+    margin: 30px 5px 0;
+    background: #eee;
+    padding: 15px;
+  }
+  .reply h3 { margin: 0 0 10px; font-size: 20px; font-weight: 500; color: #333; }
+  .reply textarea {
+    width: 100%;
+    height: 120px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 15px;
+    resize: vertical;
+  }
+  .reply .btn { margin-top: 10px; border: 0; cursor: pointer; font-family: inherit; }
+
+  footer {
+    padding: 12px 10px;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .lang { position: relative; margin-left: auto; }
+  .lang summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #fff;
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    color: #333;
+  }
+  .lang summary::-webkit-details-marker { display: none; }
+  .lang summary:hover, .lang[open] summary { border-color: #4a82b8; }
+  .lang summary::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid #777;
+    border-bottom: 2px solid #777;
+    transform: rotate(45deg) translateY(-2px);
+    margin-left: 2px;
+  }
+  .lang[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
+  .lang-menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    min-width: 170px;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    background: #fff;
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.12);
+    z-index: 10;
+  }
+  .lang-menu a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    color: #333;
+  }
+  .lang-menu a:hover { background: #f0f5fa; text-decoration: none; }
+  .lang-menu a[aria-current="true"] { font-weight: 500; }
+  .lang-menu a[aria-current="true"]::after { content: "\2713"; margin-left: auto; color: #3c7ab5; }
+  .flag {
+    width: 20px;
+    height: 14px;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.15);
+    background-size: cover;
+    flex-shrink: 0;
+  }
+  .flag-us { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 20'%3E%3Crect width='28' height='20' fill='%23fff'/%3E%3Cg fill='%23b22234'%3E%3Crect width='28' height='2.2'/%3E%3Crect y='4.4' width='28' height='2.2'/%3E%3Crect y='8.8' width='28' height='2.2'/%3E%3Crect y='13.2' width='28' height='2.2'/%3E%3Crect y='17.6' width='28' height='2.4'/%3E%3C/g%3E%3Crect width='12' height='11' fill='%233c3b6e'/%3E%3C/svg%3E"); }
+  .flag-de { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 20'%3E%3Crect width='28' height='6.7' fill='%23000'/%3E%3Crect y='6.7' width='28' height='6.7' fill='%23d00'/%3E%3Crect y='13.4' width='28' height='6.6' fill='%23ffce00'/%3E%3C/svg%3E"); }
+
+  @media (max-width: 700px) {
+    .post { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <h1>HyperCS Demo Forum</h1>
+    <div class="userbox">Hello, <a href="settings.html"><strong>Administrator</strong></a> | <a href="#">Logout</a></div>
+  </header>
+
+  <nav>
+    <a href="home.html">Home</a>
+    <a href="board-index.html">Forum</a>
+    <a href="#">Logout</a>
+  </nav>
+
+  <main>
+    <div class="breadcrumbs">
+      <a href="board-index.html">Board index</a><span>&rsaquo;</span>My first category<span>&rsaquo;</span><a href="board.html">General Discussion</a><span>&rsaquo;</span>Welcome to HyperCS!
+    </div>
+
+    <div class="title-row">
+      <div>
+        <h2>Welcome to HyperCS!</h2>
+        <p>Started by <a href="#">Administrator</a> &middot; 7 days ago &middot; 3 posts</p>
+      </div>
+      <a class="btn" href="#reply">Post reply</a>
+    </div>
+
+    <div class="posts">
+      <article class="post">
+        <div class="post-author">
+          <div class="avatar">A</div>
+          <div class="name"><a href="#">Administrator</a></div>
+          <div class="role">Admin</div><br>
+          Posts: 12<br>
+          Joined: 7 days ago
+        </div>
+        <div class="post-body">
+          <div class="post-meta">
+            <span>Welcome to HyperCS!</span>
+            <span>7 days ago &middot; <a href="#">#1</a></span>
+          </div>
+          <div class="post-content">
+            <p>Welcome to your brand new HyperCS forum! This is the first post in your first topic.</p>
+            <p>Feel free to edit or delete it, create new boards and categories, and invite your community.</p>
+          </div>
+          <div class="post-actions"><a href="#">Quote</a><a href="#">Edit</a><a href="#">Delete</a></div>
+        </div>
+      </article>
+
+      <article class="post">
+        <div class="post-author">
+          <div class="avatar alt">J</div>
+          <div class="name"><a href="#">Jane</a></div>
+          Posts: 4<br>
+          Joined: 5 days ago
+        </div>
+        <div class="post-body">
+          <div class="post-meta">
+            <span>Re: Welcome to HyperCS!</span>
+            <span>5 days ago &middot; <a href="#">#2</a></span>
+          </div>
+          <div class="post-content">
+            <p>Thanks for setting this up! Looks great so far. Is there a way to customize the theme?</p>
+          </div>
+          <div class="post-actions"><a href="#">Quote</a><a href="#">Report</a></div>
+        </div>
+      </article>
+
+      <article class="post">
+        <div class="post-author">
+          <div class="avatar">A</div>
+          <div class="name"><a href="#">Administrator</a></div>
+          <div class="role">Admin</div><br>
+          Posts: 12<br>
+          Joined: 7 days ago
+        </div>
+        <div class="post-body">
+          <div class="post-meta">
+            <span>Re: Welcome to HyperCS!</span>
+            <span>4 days ago &middot; <a href="#">#3</a></span>
+          </div>
+          <div class="post-content">
+            <p>Absolutely, Jane. Themes are plain CSS, so you can tweak colors and layout to taste.</p>
+          </div>
+          <div class="post-actions"><a href="#">Quote</a><a href="#">Edit</a><a href="#">Delete</a></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="pagination">
+      <span class="disabled">&laquo;</span>
+      <span class="current">1</span>
+      <a href="#">2</a>
+      <a href="#">&raquo;</a>
+    </div>
+
+    <section class="reply" id="reply">
+      <h3>Post a reply</h3>
+      <textarea placeholder="Write your reply..."></textarea>
+      <button class="btn" type="button">Submit</button>
+    </section>
+  </main>
+
+  <footer>
+    <div>Powered by <a href="#">HyperCS</a> | &copy; 2026 Robert Monden</div>
+    <details class="lang">
+      <summary aria-label="Language"><span class="flag flag-us"></span>English (US)</summary>
+      <ul class="lang-menu">
+        <li><a href="#" aria-current="true"><span class="flag flag-us"></span>English (US)</a></li>
+        <li><a href="#"><span class="flag flag-de"></span>Deutsch</a></li>
+      </ul>
+    </details>
+  </footer>
+  <script>
+    document.addEventListener('click', function (e) {
+      var d = document.querySelector('.lang');
+      if (d && !d.contains(e.target)) d.removeAttribute('open');
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') document.querySelector('.lang').removeAttribute('open');
+    });
+  </script>
+</div>
+</body>
+</html>

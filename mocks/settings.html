@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings – HyperCS</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #ebebeb;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    color: #444;
+    font-size: 15px;
+  }
+  a { color: #3c7ab5; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .wrapper { max-width: 1632px; margin: 0 auto; }
+
+  header {
+    height: 101px;
+    padding: 0 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%);
+  }
+  header h1 { margin: 0; font-size: 32px; font-weight: 400; color: #444; }
+  .userbox {
+    background: #f4f4f4;
+    border-radius: 3px;
+    padding: 10px;
+    font-size: 16px;
+    margin-top: -2px;
+  }
+  .userbox a { color: #444; }
+
+  nav {
+    height: 40px;
+    background: linear-gradient(90deg, #4a82b8 0%, #6a9bc8 70%, #77a6d0 100%);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+  }
+  nav a { color: #fff; font-size: 14px; padding: 0 12px; }
+
+  main { background: #fff; padding: 20px 20px 40px; }
+  main h2 { margin: 22px 5px 28px; font-size: 32px; font-weight: 700; color: #000; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 30px;
+    margin: 0 5px;
+    align-items: start;
+  }
+
+  .sidebar { background: #f7f7f7; }
+  .sidebar a {
+    display: block;
+    padding: 12px 15px;
+    font-size: 15px;
+    color: #444;
+    border-bottom: 1px solid #e8e8e8;
+    border-left: 3px solid transparent;
+  }
+  .sidebar a:hover { background: #f0f0f0; text-decoration: none; }
+  .sidebar a.active {
+    background: #fff;
+    border-left-color: #4a82b8;
+    color: #3c7ab5;
+    font-weight: 500;
+  }
+
+  .panel { margin-bottom: 30px; max-width: 760px; }
+  .panel-head { background: #eee; padding: 15px; }
+  .panel-head h3 { margin: 0; font-size: 20px; font-weight: 500; color: #333; }
+  .panel-head p { margin: 2px 0 0; font-size: 12px; color: #222; }
+  .panel-body { padding: 20px 15px; border-bottom: 1px solid #e8e8e8; }
+
+  .field { margin-bottom: 18px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  label { display: block; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 6px; }
+  .hint { font-size: 12px; color: #777; margin-top: 4px; }
+  input[type="text"], input[type="email"], input[type="password"], input[type="url"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 15px;
+    background: #fff;
+  }
+  textarea { height: 110px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #4a82b8; }
+  input[disabled] { background: #f4f4f4; color: #888; }
+
+  .avatar-row { display: flex; align-items: center; gap: 20px; }
+  .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 3px;
+    background: linear-gradient(135deg, #4a82b8, #77a6d0);
+    color: #fff;
+    font-size: 36px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .avatar-actions { font-size: 14px; }
+  .avatar-actions a { margin-right: 14px; }
+
+  .check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 14px; color: #555; }
+  .check label { display: inline; margin: 0; font-weight: 400; }
+
+  .btn {
+    display: inline-block;
+    background: #4a82b8;
+    color: #fff;
+    border: 0;
+    padding: 10px 22px;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .btn:hover { background: #3c70a3; }
+
+  footer {
+    padding: 12px 10px;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .lang { position: relative; margin-left: auto; }
+  .lang summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #fff;
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    color: #333;
+  }
+  .lang summary::-webkit-details-marker { display: none; }
+  .lang summary:hover, .lang[open] summary { border-color: #4a82b8; }
+  .lang summary::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid #777;
+    border-bottom: 2px solid #777;
+    transform: rotate(45deg) translateY(-2px);
+    margin-left: 2px;
+  }
+  .lang[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
+  .lang-menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    min-width: 170px;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    background: #fff;
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.12);
+    z-index: 10;
+  }
+  .lang-menu a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    color: #333;
+  }
+  .lang-menu a:hover { background: #f0f5fa; text-decoration: none; }
+  .lang-menu a[aria-current="true"] { font-weight: 500; }
+  .lang-menu a[aria-current="true"]::after { content: "\2713"; margin-left: auto; color: #3c7ab5; }
+  .flag {
+    width: 20px;
+    height: 14px;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.15);
+    background-size: cover;
+    flex-shrink: 0;
+  }
+  .flag-us { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 20'%3E%3Crect width='28' height='20' fill='%23fff'/%3E%3Cg fill='%23b22234'%3E%3Crect width='28' height='2.2'/%3E%3Crect y='4.4' width='28' height='2.2'/%3E%3Crect y='8.8' width='28' height='2.2'/%3E%3Crect y='13.2' width='28' height='2.2'/%3E%3Crect y='17.6' width='28' height='2.4'/%3E%3C/g%3E%3Crect width='12' height='11' fill='%233c3b6e'/%3E%3C/svg%3E"); }
+  .flag-de { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 20'%3E%3Crect width='28' height='6.7' fill='%23000'/%3E%3Crect y='6.7' width='28' height='6.7' fill='%23d00'/%3E%3Crect y='13.4' width='28' height='6.6' fill='%23ffce00'/%3E%3C/svg%3E"); }
+
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <h1>HyperCS</h1>
+    <div class="userbox">Hello, <a href="settings.html"><strong>Administrator</strong></a> | <a href="#">Logout</a></div>
+  </header>
+
+  <nav>
+    <a href="home.html">Home</a>
+    <a href="board-index.html">Forum</a>
+    <a href="#">Logout</a>
+  </nav>
+
+  <main>
+    <h2>Settings</h2>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <a class="active" href="#profile">Profile</a>
+        <a href="#account">Account</a>
+        <a href="#password">Password</a>
+        <a href="#preferences">Preferences</a>
+      </aside>
+
+      <div>
+        <form action="#" method="post">
+          <section class="panel" id="profile">
+            <div class="panel-head">
+              <h3>Profile</h3>
+              <p>This information is visible to other members.</p>
+            </div>
+            <div class="panel-body">
+              <div class="field">
+                <label>Avatar</label>
+                <div class="avatar-row">
+                  <div class="avatar">A</div>
+                  <div class="avatar-actions">
+                    <a href="#">Upload new picture</a><a href="#">Remove</a>
+                    <div class="hint">JPG or PNG, max. 1 MB.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="display-name">Display name</label>
+                  <input type="text" id="display-name" value="Administrator">
+                </div>
+                <div class="field">
+                  <label for="location">Location</label>
+                  <input type="text" id="location" value="Amsterdam">
+                </div>
+              </div>
+              <div class="field">
+                <label for="website">Website</label>
+                <input type="url" id="website" placeholder="https://">
+              </div>
+              <div class="field">
+                <label for="about">About me</label>
+                <textarea id="about">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
+              </div>
+              <button class="btn" type="submit">Save profile</button>
+            </div>
+          </section>
+        </form>
+
+        <form action="#" method="post">
+          <section class="panel" id="account">
+            <div class="panel-head">
+              <h3>Account</h3>
+              <p>Your personal information. This is never shown publicly.</p>
+            </div>
+            <div class="panel-body">
+              <div class="field-row">
+                <div class="field">
+                  <label for="first-name">First name</label>
+                  <input type="text" id="first-name" value="Robert">
+                </div>
+                <div class="field">
+                  <label for="last-name">Last name</label>
+                  <input type="text" id="last-name" value="Monden">
+                </div>
+              </div>
+              <div class="field">
+                <label for="username">Username</label>
+                <input type="text" id="username" value="admin" disabled>
+                <div class="hint">Usernames cannot be changed.</div>
+              </div>
+              <div class="field">
+                <label for="email">Email address</label>
+                <input type="email" id="email" value="admin@example.com">
+              </div>
+              <button class="btn" type="submit">Save account</button>
+            </div>
+          </section>
+        </form>
+
+        <form action="#" method="post">
+          <section class="panel" id="password">
+            <div class="panel-head">
+              <h3>Change password</h3>
+              <p>Choose a strong password you don't use elsewhere.</p>
+            </div>
+            <div class="panel-body">
+              <div class="field">
+                <label for="current-password">Current password</label>
+                <input type="password" id="current-password" autocomplete="current-password">
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="new-password">New password</label>
+                  <input type="password" id="new-password" autocomplete="new-password">
+                </div>
+                <div class="field">
+                  <label for="new-password2">Confirm new password</label>
+                  <input type="password" id="new-password2" autocomplete="new-password">
+                </div>
+              </div>
+              <button class="btn" type="submit">Change password</button>
+            </div>
+          </section>
+        </form>
+
+        <form action="#" method="post">
+          <section class="panel" id="preferences">
+            <div class="panel-head">
+              <h3>Preferences</h3>
+              <p>Customize how the community works for you.</p>
+            </div>
+            <div class="panel-body">
+              <div class="field-row">
+                <div class="field">
+                  <label for="language">Language</label>
+                  <select id="language">
+                    <option selected>English (US)</option>
+                    <option>Deutsch</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="timezone">Time zone</label>
+                  <select id="timezone">
+                    <option selected>Europe/Amsterdam</option>
+                    <option>UTC</option>
+                    <option>America/New_York</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Notifications</label>
+                <div class="check"><input type="checkbox" id="n-reply" checked> <label for="n-reply">Email me when someone replies to my topics</label></div>
+                <div class="check"><input type="checkbox" id="n-quote"> <label for="n-quote">Email me when someone quotes my posts</label></div>
+              </div>
+              <div class="field">
+                <label>Privacy</label>
+                <div class="check"><input type="checkbox" id="p-online" checked> <label for="p-online">Show me in the list of users online</label></div>
+              </div>
+              <button class="btn" type="submit">Save preferences</button>
+            </div>
+          </section>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>Powered by <a href="#">HyperCS</a> | &copy; 2026 Robert Monden</div>
+    <details class="lang">
+      <summary aria-label="Language"><span class="flag flag-us"></span>English (US)</summary>
+      <ul class="lang-menu">
+        <li><a href="#" aria-current="true"><span class="flag flag-us"></span>English (US)</a></li>
+        <li><a href="#"><span class="flag flag-de"></span>Deutsch</a></li>
+      </ul>
+    </details>
+  </footer>
+  <script>
+    document.addEventListener('click', function (e) {
+      var d = document.querySelector('.lang');
+      if (d && !d.contains(e.target)) d.removeAttribute('open');
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') document.querySelector('.lang').removeAttribute('open');
+    });
+  </script>
+</div>
+</body>
+</html>
