@@ -1,0 +1,15 @@
+{
+  "app": { "name": "HyperCS" },
+  "nav": { "home": "Startseite", "forum": "Forum", "login": "Anmelden", "logout": "Abmelden" },
+  "userbox": { "login": "Anmelden", "register": "Registrieren" },
+  "footer": {
+    "poweredBy": "Betrieben mit <link>HyperCS</link> | © {{year}} Robert Monden",
+    "language": "Sprache"
+  },
+  "home": {
+    "title": "Willkommen bei HyperCS",
+    "intro": "Ein freundlicher Ort, um Ideen zu teilen, voneinander zu lernen und gemeinsam etwas aufzubauen.",
+    "learnMore": "Mehr erfahren"
+  },
+  "api": { "ok": "API-Status: online", "down": "API-Status: nicht erreichbar", "loading": "API-Status: wird geprüft …" }
+}

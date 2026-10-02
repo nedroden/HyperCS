@@ -1,6 +1,6 @@
 # HyperCS Web (React)
 
-React single-page front-end for HyperCS. This project does not exist yet; this file defines how it should be built. See the root `CLAUDE.md` for product-wide rules and `planning/requirements.md` for what to build.
+React single-page front-end for HyperCS. This file defines how it is built. See the root `CLAUDE.md` for product-wide rules and `planning/requirements.md` for what to build.
 
 ## Intended stack
 
@@ -14,7 +14,7 @@ Defaults to use when scaffolding. If you want to deviate, say why first.
 - i18n: `react-i18next` (or equivalent) with JSON message catalogs for `en-US` and `de`. `en-US` is the default and fallback.
 - Styling: plain CSS (CSS modules) using design tokens taken from the mocks. No UI component library; the look comes from `mocks/`.
 - Testing: Vitest + React Testing Library; Playwright for a small set of end-to-end flows.
-- Lint/format: ESLint and Prettier.
+- Lint: oxlint (`npm run lint`), as set up by the Vite template.
 
 ## Layout
 

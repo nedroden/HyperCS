@@ -1,0 +1,16 @@
+/* Design tokens taken from mocks/*.html */
+:root {
+  --font: Roboto, Helvetica, Arial, sans-serif;
+  --color-text: #444;
+  --color-heading: #000;
+  --color-link: #3c7ab5;
+  --color-primary: #4a82b8;
+  --color-primary-hover: #3c70a3;
+  --color-bg-page: #ebebeb;
+  --color-bg-content: #fff;
+  --color-bg-section: #eee;
+  --color-border: #e8e8e8;
+  --gradient-header: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%);
+  --gradient-nav: linear-gradient(90deg, #4a82b8 0%, #6a9bc8 70%, #77a6d0 100%);
+  --max-width: 1632px;
+}

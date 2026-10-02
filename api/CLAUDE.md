@@ -1,6 +1,6 @@
 # HyperCS API (Rust)
 
-Rust JSON web API for the HyperCS CMS and forum. This project does not exist yet; this file defines how it should be built. See the root `CLAUDE.md` for product-wide rules and `planning/requirements.md` for what to build.
+Rust JSON web API for the HyperCS CMS and forum. This file defines how it is built. Not yet added from the intended stack: OpenAPI generation (`utoipa`), auth, validation. See the root `CLAUDE.md` for product-wide rules and `planning/requirements.md` for what to build.
 
 ## Intended stack
 

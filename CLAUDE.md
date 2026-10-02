@@ -4,12 +4,12 @@ Open-source community software: a small CMS (homepage, news) combined with a dis
 
 ## Status
 
-Pre-implementation. Only design artefacts exist so far:
+Both projects are bootstrapped (health endpoint, app shell, i18n, language switcher) but no product features exist yet.
 
 - `mocks/` – static HTML mockups of every page (English only, plain HTML/CSS, one file per page). These are the visual and behavioural reference for the UI.
 - `planning/requirements.md` – numbered requirements (R-G*, R-C*, R-A*, R-F*) derived from the mocks, with open questions at the end.
-
-The code projects below do not exist yet. When asked to scaffold them, follow this file.
+- `api/` – Rust API (axum, sqlx). `web/` – React + Vite + TypeScript app.
+- `docker-compose.yml` – local stack: PostgreSQL, API, and the web dev server (`docker compose up --build`; web on :5173, API on :8080).
 
 ## Target architecture
 
@@ -58,9 +58,12 @@ Each project has its own `CLAUDE.md` with stack-specific rules – read it befor
 
 ## Commands
 
-Run from the repository root unless noted. These are the intended commands; update this section when the projects are scaffolded.
+Run from the repository root unless noted.
 
 ```bash
+# Full local stack
+docker compose up --build
+
 # API
 cd api && cargo run            # start the API
 cd api && cargo test           # tests

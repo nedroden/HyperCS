@@ -1,0 +1,12 @@
+# Rust
+api/target/
+
+# Node
+web/node_modules/
+web/dist/
+
+# Env and OS files
+.env
+.env.*
+!.env.example
+.DS_Store

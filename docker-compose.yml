@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: hypercs
+      POSTGRES_PASSWORD: hypercs
+      POSTGRES_DB: hypercs
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hypercs -d hypercs"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./api
+    environment:
+      BIND_ADDR: 0.0.0.0:8080
+      DATABASE_URL: postgres://hypercs:hypercs@db:5432/hypercs
+      RUST_LOG: info,hypercs_api=debug
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    image: node:24-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev"
+    environment:
+      API_PROXY_TARGET: http://api:8080
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/app
+      - web-node-modules:/app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  db-data:
+  web-node-modules:
