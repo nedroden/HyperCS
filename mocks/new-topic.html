@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New topic – General Discussion – HyperCS Demo Forum</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ebebeb; font-family: Roboto, Helvetica, Arial, sans-serif; color: #444; font-size: 15px; }
+  a { color: #3c7ab5; text-decoration: none; }
+  .wrapper { max-width: 1632px; margin: 0 auto; }
+  header { height: 101px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%); }
+  .userbox { background: #f4f4f4; border-radius: 3px; padding: 10px; font-size: 16px; }
+  nav { height: 40px; background: linear-gradient(90deg, #4a82b8 0%, #6a9bc8 70%, #77a6d0 100%); display: flex; align-items: center; padding: 0 20px; }
+  nav a { color: #fff; font-size: 14px; padding: 0 12px; }
+  main { background: #fff; padding: 20px 20px 25px; }
+  .breadcrumbs { font-size: 13px; color: #777; margin: 4px 5px 0; }
+  .breadcrumbs span { margin: 0 6px; }
+  h2 { margin: 14px 5px 20px; font-size: 32px; font-weight: 700; color: #000; }
+  form { margin: 0 5px; max-width: 760px; }
+  .field { margin-bottom: 18px; }
+  label { display: block; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 6px; }
+  input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px; font-family: inherit; font-size: 15px; }
+  textarea { height: 180px; resize: vertical; font-family: 'Courier New', monospace; }
+  .hint { font-size: 12px; color: #777; margin-top: 4px; }
+  .preview-toggle { display: flex; gap: 10px; margin-bottom: 8px; font-size: 13px; }
+  .preview-toggle button { background: none; border: 1px solid #ddd; border-radius: 3px; padding: 5px 12px; cursor: pointer; font-family: inherit; }
+  .preview-toggle button.active { background: #4a82b8; color: #fff; border-color: #4a82b8; }
+  .preview-box { border: 1px dashed #ccc; border-radius: 3px; padding: 14px; min-height: 180px; color: #333; }
+  .btn { display: inline-block; background: #4a82b8; color: #fff; border: 0; padding: 10px 22px; border-radius: 3px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .btn.secondary { background: #ddd; color: #333; }
+  .actions { display: flex; gap: 10px; }
+  footer { padding: 12px 10px; font-size: 14px; color: #333; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <a class="logo" href="home.html"><img src="../web/public/logo.svg" alt="HyperCS" height="48"></a>
+    <div class="userbox">Hello, <a href="settings.html"><strong>Jane</strong></a> | <a href="#">Logout</a></div>
+  </header>
+  <nav><a href="home.html">Home</a><a href="board-index.html">Forum</a><a href="#">Logout</a></nav>
+  <main>
+    <div class="breadcrumbs">
+      <a href="board-index.html">Board index</a><span>&rsaquo;</span>My first category<span>&rsaquo;</span><a href="board.html">General Discussion</a><span>&rsaquo;</span>New topic
+    </div>
+    <h2>New topic</h2>
+    <form action="#" method="post">
+      <div class="field">
+        <label for="title">Title</label>
+        <input type="text" id="title" placeholder="Give your topic a title" maxlength="120">
+        <div class="hint">3–120 characters.</div>
+      </div>
+      <div class="field">
+        <label for="body">Message</label>
+        <div class="preview-toggle">
+          <button type="button" class="active">Write</button>
+          <button type="button">Preview</button>
+        </div>
+        <textarea id="body" placeholder="Write your message in Markdown..." maxlength="10000"></textarea>
+        <div class="hint">Markdown is supported. Maximum 10,000 characters.</div>
+      </div>
+      <div class="actions">
+        <button class="btn" type="submit">Post topic</button>
+        <button class="btn secondary" type="button">Cancel</button>
+      </div>
+    </form>
+  </main>
+  <footer>Powered by <a href="https://robertmonden.com" target="_blank" rel="noopener noreferrer">HyperCS</a> | &copy; 2026 Robert Monden</footer>
+</div>
+</body>
+</html>

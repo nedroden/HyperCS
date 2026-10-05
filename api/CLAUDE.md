@@ -1,65 +1,124 @@
 # HyperCS API (Rust)
 
-Rust JSON web API for the HyperCS CMS and forum. This file defines how it is built. Not yet added from the intended stack: OpenAPI generation (`utoipa`), auth, validation. See the root `CLAUDE.md` for product-wide rules and `planning/requirements.md` for what to build.
+Rust JSON web API for the HyperCS CMS and forum. See the root `CLAUDE.md` for
+product-wide rules, `planning/requirements.md` for what to build, and
+`planning/mvp-plan.md` for the data model, endpoint list and test plan.
 
-## Intended stack
+## Stack
 
-Defaults to use when scaffolding. If you want to deviate, say why first.
-
-- Edition 2021 or later, stable toolchain (pin it in `rust-toolchain.toml`).
+- Edition 2024, stable toolchain (pinned in `rust-toolchain.toml`).
 - Web framework: `axum` on `tokio`.
-- Database: PostgreSQL via `sqlx` (compile-time checked queries, SQL migrations in `migrations/`).
-- Serialization: `serde` / `serde_json`.
-- Validation: `validator` or hand-written checks at the boundary.
-- Auth: server-side sessions with an HTTP-only, `SameSite` cookie, or a short-lived token plus refresh; passwords hashed with `argon2`. Never store or log plaintext passwords.
-- Errors: `thiserror` for library/domain errors, mapped to the API error shape in one place (an `IntoResponse` impl).
-- Config: environment variables, loaded once at startup into a typed config struct (`.env.example` documents them).
+- Database: PostgreSQL via `sqlx`. Queries are **runtime-checked**
+  (`sqlx::query_as` with `#[derive(FromRow)]` structs, not the compile-time
+  `query!`/`query_as!` macros): this was chosen over compile-time checking so
+  the Docker image builds without a live database and so no `cargo sqlx
+  prepare` / `.sqlx` cache needs to be kept in sync. All queries are still
+  parameterized (no string-built SQL); sqlx itself additionally refuses to
+  build a dynamic (non-`'static`) SQL string, so ad-hoc query strings must be
+  `const_format::concatcp!`'d at compile time if they need composing.
+- IDs: UUID v7 (`uuid` crate, `v7` feature), generated in the app.
+- Validation: `validator` derive on request DTOs, run through a custom axum
+  extractor (`ValidatedJson`) that returns the problem+json shape.
+- Auth: server-side sessions, opaque token in an HTTP-only `SameSite=Lax`
+  cookie (only a hash of the token is stored); passwords hashed with
+  `argon2`. No JWTs, no password reset.
+- Errors: `thiserror` domain errors in `hypercs-domain`, mapped once in
+  `hypercs-api::error` to RFC 9457 `application/problem+json`.
+- Config: environment variables loaded once into a typed `Config` in
+  `hypercs-server` (`.env.example` documents them).
 - Logging: `tracing` + `tracing-subscriber`.
-- OpenAPI: generate with `utoipa` (or equivalent) and serve the spec; the front-end client is generated from it.
+- OpenAPI: `utoipa`, served at `/api/v1/openapi.json` (always) and Swagger UI
+  at `/api/v1/docs` (behind `API_DOCS_ENABLED`); the front-end client is
+  generated from it (`cd web && npm run generate:api`, API must be running or
+  use `cargo run -p hypercs-server -- openapi > /tmp/openapi.json`).
 
-## Layout
+## Workspace layout
+
+Four crates under `crates/`, with a strict dependency direction
+(`hypercs-api -> hypercs-domain`, `hypercs-db -> hypercs-domain`,
+`hypercs-server -> hypercs-api, hypercs-db, hypercs-domain`):
 
 ```
 api/
-  Cargo.toml
-  migrations/        # sqlx migrations, one per change, never edited after merge
-  src/
-    main.rs          # startup only: config, tracing, DB pool, router, serve
-    config.rs
-    error.rs         # AppError and its HTTP mapping
-    routes/          # HTTP layer: extract, call a service, shape the response
-    services/        # business logic, no HTTP types
-    db/              # queries and row types
-    models/          # domain types shared between layers
-  tests/             # integration tests against a real test database
+  Cargo.toml          # workspace manifest + shared dependency versions
+  crates/
+    domain/            # models, newtypes, constants, the policy module, DomainError. No I/O.
+      src/
+        constants.rs   # validation limits, pagination sizes, flood-control thresholds
+        models.rs       # Role, AuthUser, UserSummary, LastPostSummary
+        policy.rs       # can_edit_post(), can_view_board(), ... - pure, exhaustively unit tested
+        validation.rs   # normalize_text, slugify, username/display-name checks
+        errors.rs       # DomainError (validation/not_found/forbidden/conflict/...)
+    db/                # sqlx repositories and the SQL migrations
+      migrations/       # 0001_init.sql, forward-only, no down migrations
+      src/
+        users.rs, sessions.rs, structure.rs, topics.rs, posts.rs, news.rs, cms.rs, stats.rs
+        pagination.rs   # Page<T> / PageParams shared by every list endpoint
+    api/                # axum routes, extractors, services, OpenAPI
+      src/
+        auth/            # password hashing, session cookie, AuthUser/OptionalAuthUser/SameOrigin extractors
+        dto.rs           # request/response DTOs (validator + utoipa::ToSchema)
+        services/        # business rules + authorization calls into policy; one file per domain area
+        routes/          # thin handlers: extract, call a service, shape the response
+        error.rs         # ApiError -> problem+json
+        openapi.rs       # utoipa OpenApi aggregating every route + schema
+    server/             # the binary: config, wiring, CLI, background tasks
+      src/
+        main.rs          # clap CLI: `serve` (default), `migrate`, `recount`, `openapi`
+        config.rs, seed.rs, housekeeping.rs, recount.rs
+      tests/             # integration tests (Testcontainers Postgres)
 ```
-
-Keep the layers separate: handlers stay thin, business rules live in services, SQL lives in `db/`.
 
 ## Domain
 
-Categories → Boards → Topics → Posts, plus Users (roles, e.g. admin), CMS content (homepage hero, features, news), and user settings (profile, account, preferences including language and time zone). Counts (topics, posts, last post per board, statistics) must be correct; decide deliberately between computing them and storing denormalized counters, and keep them consistent in a transaction.
+Categories -> Boards -> Topics -> Posts, Users (roles: `admin`, `moderator`,
+`member`), sessions, post edit history (`post_revisions`), CMS content
+(`cms_content` key/value table for the homepage and terms; `news_items`).
+Denormalized counters (board topic/post counts + last post, topic reply/view
+counts + last post, user post count) are maintained transactionally by the
+service layer on every insert/delete/move; the `recount` CLI recomputes them
+all from source tables as a repair tool (`cargo run -p hypercs-server --
+recount`).
 
 ## Rules
 
-- Authorization is enforced in the API, never trusted from the client. Edit/delete of posts is limited to the author and admins; check this in the service layer.
-- Validate and bound all input (lengths, page sizes). Paginate every list endpoint with a maximum page size.
-- Use parameterized queries only (`sqlx` macros); no string-built SQL.
-- Escape/sanitize nothing silently: store post content as submitted and render safely in the front-end. Decide the formatting syntax (plain text vs markup) before building posts; it is an open question in the requirements.
-- No `unwrap()`/`expect()` in request paths; return `AppError`. `unwrap` is fine in tests and in startup code that should crash on bad config.
-- No `unsafe` unless there is a documented reason.
-- Public items that form the API contract carry doc comments, and OpenAPI annotations must stay in sync with the handlers.
-- Time: store UTC (`timestamptz`); the front-end handles display and time zones.
+- Authorization lives in `hypercs_domain::policy` (pure functions, exhaustively
+  unit tested) and is called from `hypercs-api::services`; extractors
+  (`AuthUser`, `OptionalAuthUser`) only authenticate. Never trust the client.
+- Thin handlers in `routes/`; business rules and transactions in `services/`;
+  SQL only in `hypercs-db`.
+- CSRF: `AuthUser` enforces same-origin + a matching `X-CSRF-Token` header for
+  any state-changing request on an authenticated route; `SameOrigin` does the
+  origin check alone for register/login (no session yet to carry a token).
+- No `unwrap()`/`expect()` in request paths (fine in tests and startup code
+  that should crash on bad config). No `unsafe`.
+- Validate and bound all input; every list endpoint is paginated with a
+  `hypercs_db::pagination::Page<T>` response and a maximum page size.
+- Time: store UTC (`timestamptz`, `chrono`); the front-end handles display
+  and time zones.
 
 ## Testing
 
-- Unit tests next to the code (`#[cfg(test)]`); integration tests in `tests/` that run the real router against a test database (use a fresh schema/transaction per test).
-- Every endpoint gets at least a happy-path and an authorization-failure test.
-- Formatting uses rustfmt defaults with `tab_spaces = 4` (`rustfmt.toml`); linting uses clippy with warnings denied. The root scripts `./format.sh api` and `./lint.sh api` run them.
+- Unit tests next to the code (`#[cfg(test)]`), notably the policy module and
+  `hypercs_domain::validation`.
+- Integration tests in `crates/server/tests/` run the real axum router (via
+  `tower::ServiceExt::oneshot`, no TCP listener needed) against a real
+  PostgreSQL instance started per test with `testcontainers-modules`. Requires
+  Docker; on a machine using Colima, make sure `DOCKER_HOST` points at its
+  socket, e.g. `export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock`.
 - Before finishing a change, all of these must pass:
 
 ```bash
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
-cargo test
+cargo test --workspace
+```
+
+## Commands
+
+```bash
+cargo run -p hypercs-server                  # serve (equivalent to `-- serve`)
+cargo run -p hypercs-server -- migrate       # run pending migrations and exit
+cargo run -p hypercs-server -- recount       # recompute denormalized counters
+cargo run -p hypercs-server -- openapi       # print the OpenAPI document to stdout
 ```

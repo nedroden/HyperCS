@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit post – Welcome to HyperCS! – HyperCS Demo Forum</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ebebeb; font-family: Roboto, Helvetica, Arial, sans-serif; color: #444; font-size: 15px; }
+  a { color: #3c7ab5; text-decoration: none; }
+  .wrapper { max-width: 1632px; margin: 0 auto; }
+  header { height: 101px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%); }
+  .userbox { background: #f4f4f4; border-radius: 3px; padding: 10px; font-size: 16px; }
+  nav { height: 40px; background: linear-gradient(90deg, #4a82b8 0%, #6a9bc8 70%, #77a6d0 100%); display: flex; align-items: center; padding: 0 20px; }
+  nav a { color: #fff; font-size: 14px; padding: 0 12px; }
+  main { background: #fff; padding: 20px 20px 25px; }
+  .breadcrumbs { font-size: 13px; color: #777; margin: 4px 5px 0; }
+  .breadcrumbs span { margin: 0 6px; }
+  h2 { margin: 14px 5px 20px; font-size: 32px; font-weight: 700; color: #000; }
+  form { margin: 0 5px; max-width: 760px; }
+  .field { margin-bottom: 18px; }
+  label { display: block; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 6px; }
+  textarea { width: 100%; height: 180px; padding: 10px; border: 1px solid #ddd; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 15px; resize: vertical; }
+  .btn { display: inline-block; background: #4a82b8; color: #fff; border: 0; padding: 10px 22px; border-radius: 3px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .btn.secondary { background: #ddd; color: #333; }
+  .actions { display: flex; gap: 10px; align-items: center; }
+  .history-link { margin-left: auto; font-size: 13px; }
+  footer { padding: 12px 10px; font-size: 14px; color: #333; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <a class="logo" href="home.html"><img src="../web/public/logo.svg" alt="HyperCS" height="48"></a>
+    <div class="userbox">Hello, <a href="settings.html"><strong>Administrator</strong></a> | <a href="#">Logout</a></div>
+  </header>
+  <nav><a href="home.html">Home</a><a href="board-index.html">Forum</a><a href="#">Logout</a></nav>
+  <main>
+    <div class="breadcrumbs">
+      <a href="board-index.html">Board index</a><span>&rsaquo;</span>My first category<span>&rsaquo;</span><a href="board.html">General Discussion</a><span>&rsaquo;</span><a href="topic.html">Welcome to HyperCS!</a><span>&rsaquo;</span>Edit post
+    </div>
+    <h2>Edit post</h2>
+    <form action="#" method="post">
+      <div class="field">
+        <label for="body">Message</label>
+        <textarea id="body" maxlength="10000">Welcome to your brand new HyperCS forum! This is the first post in your first topic.
+
+Feel free to edit or delete it, create new boards and categories, and invite your community.</textarea>
+      </div>
+      <div class="actions">
+        <button class="btn" type="submit">Save changes</button>
+        <button class="btn secondary" type="button">Cancel</button>
+        <a class="history-link" href="post-history.html">View edit history (2 revisions)</a>
+      </div>
+    </form>
+  </main>
+  <footer>Powered by <a href="https://robertmonden.com" target="_blank" rel="noopener noreferrer">HyperCS</a> | &copy; 2026 Robert Monden</footer>
+</div>
+</body>
+</html>

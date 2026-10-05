@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jane – HyperCS</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ebebeb; font-family: Roboto, Helvetica, Arial, sans-serif; color: #444; font-size: 15px; }
+  a { color: #3c7ab5; text-decoration: none; }
+  .wrapper { max-width: 1632px; margin: 0 auto; }
+  header { height: 101px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%); }
+  .userbox { background: #f4f4f4; border-radius: 3px; padding: 10px; font-size: 16px; }
+  nav { height: 40px; background: linear-gradient(90deg, #4a82b8 0%, #6a9bc8 70%, #77a6d0 100%); display: flex; align-items: center; padding: 0 20px; }
+  nav a { color: #fff; font-size: 14px; padding: 0 12px; }
+  main { background: #fff; padding: 20px 20px 25px; }
+  .profile-head { display: flex; gap: 22px; align-items: center; margin: 10px 5px 24px; }
+  .avatar { width: 96px; height: 96px; border-radius: 3px; background: linear-gradient(135deg, #888, #bbb); color: #fff; font-size: 42px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .profile-head h2 { margin: 0 0 4px; font-size: 30px; font-weight: 700; color: #000; }
+  .profile-head .meta { font-size: 13px; color: #777; }
+  .panel { margin: 0 5px 20px; border: 1px solid #e8e8e8; border-radius: 3px; max-width: 760px; }
+  .panel-head { background: #eee; padding: 10px 15px; font-size: 16px; font-weight: 500; }
+  .panel-body { padding: 16px; font-size: 15px; line-height: 23px; color: #333; }
+  footer { padding: 12px 10px; font-size: 14px; color: #333; }
+  @media (max-width: 700px) { .profile-head { flex-direction: column; align-items: flex-start; } }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <a class="logo" href="home.html"><img src="../web/public/logo.svg" alt="HyperCS" height="48"></a>
+    <div class="userbox">Hello, <a href="settings.html"><strong>Administrator</strong></a> | <a href="#">Logout</a></div>
+  </header>
+  <nav><a href="home.html">Home</a><a href="board-index.html">Forum</a><a href="#">Logout</a></nav>
+  <main>
+    <div class="profile-head">
+      <div class="avatar">J</div>
+      <div>
+        <h2>Jane</h2>
+        <div class="meta">Member &middot; joined 5 days ago &middot; 4 posts</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">About me</div>
+      <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enthusiast of all things HyperCS.</div>
+    </div>
+  </main>
+  <footer>Powered by <a href="https://robertmonden.com" target="_blank" rel="noopener noreferrer">HyperCS</a> | &copy; 2026 Robert Monden</footer>
+</div>
+</body>
+</html>

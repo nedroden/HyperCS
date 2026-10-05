@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homepage &amp; news – HyperCS Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ebebeb; font-family: Roboto, Helvetica, Arial, sans-serif; color: #444; font-size: 15px; }
+  a { color: #3c7ab5; text-decoration: none; }
+  .wrapper { max-width: 1632px; margin: 0 auto; }
+  header { height: 101px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%); }
+  .userbox { background: #f4f4f4; border-radius: 3px; padding: 10px; font-size: 16px; }
+  nav { height: 40px; background: linear-gradient(90deg, #4a82b8 0%, #6a9bc8 70%, #77a6d0 100%); display: flex; align-items: center; padding: 0 20px; }
+  nav a { color: #fff; font-size: 14px; padding: 0 12px; }
+  main { background: #fff; padding: 20px 20px 40px; }
+  h2 { margin: 14px 5px 6px; font-size: 32px; font-weight: 700; color: #000; }
+  .admin-tabs { margin: 0 5px 24px; display: flex; gap: 4px; border-bottom: 1px solid #ddd; }
+  .admin-tabs a { padding: 10px 16px; font-size: 14px; border-bottom: 2px solid transparent; }
+  .admin-tabs a.active { border-color: #4a82b8; color: #333; font-weight: 500; }
+  .panel { margin: 0 5px 26px; max-width: 760px; border: 1px solid #e8e8e8; }
+  .panel-head { background: #eee; padding: 12px 15px; font-size: 17px; font-weight: 500; }
+  .panel-body { padding: 16px; }
+  .field { margin-bottom: 14px; }
+  label { display: block; font-size: 13px; font-weight: 500; color: #555; margin-bottom: 5px; }
+  input[type="text"], textarea { width: 100%; padding: 9px; border: 1px solid #ddd; border-radius: 3px; font-family: inherit; font-size: 14px; }
+  textarea { height: 70px; resize: vertical; }
+  .feature-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #eee; }
+  .btn { display: inline-block; background: #4a82b8; color: #fff; border: 0; padding: 8px 18px; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .news-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+  footer { padding: 12px 10px; font-size: 14px; color: #333; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <a class="logo" href="home.html"><img src="../web/public/logo.svg" alt="HyperCS" height="48"></a>
+    <div class="userbox">Hello, <a href="settings.html"><strong>Administrator</strong></a> | <a href="#">Logout</a></div>
+  </header>
+  <nav><a href="home.html">Home</a><a href="board-index.html">Forum</a><a href="#">Logout</a></nav>
+  <main>
+    <h2>Admin &middot; Homepage &amp; news</h2>
+    <div class="admin-tabs">
+      <a href="admin-structure.html">Structure</a>
+      <a href="admin-users.html">Users &amp; roles</a>
+      <a class="active" href="admin-homepage.html">Homepage &amp; news</a>
+    </div>
+
+    <form action="#" method="post">
+      <section class="panel">
+        <div class="panel-head">Hero</div>
+        <div class="panel-body">
+          <div class="field"><label>Heading</label><input type="text" value="Welcome to HyperCS"></div>
+          <div class="field"><label>Intro text</label><textarea>Open-source community software for your next project.</textarea></div>
+          <div class="field"><label>Button label</label><input type="text" value="Join the community"></div>
+          <button class="btn" type="submit">Save hero</button>
+        </div>
+      </section>
+    </form>
+
+    <form action="#" method="post">
+      <section class="panel">
+        <div class="panel-head">Feature blocks</div>
+        <div class="panel-body">
+          <div class="feature-row">
+            <input type="text" value="Fast"><textarea>Built on a modern, lightweight stack.</textarea>
+          </div>
+          <div class="feature-row">
+            <input type="text" value="Open"><textarea>Fully open source, self-hostable.</textarea>
+          </div>
+          <div class="feature-row">
+            <input type="text" value="Friendly"><textarea>A welcoming home for your community.</textarea>
+          </div>
+          <button class="btn" type="submit">Save features</button>
+        </div>
+      </section>
+    </form>
+
+    <section class="panel">
+      <div class="panel-head">News</div>
+      <div class="panel-body">
+        <div class="news-row"><span>HyperCS 0.1 released</span><span><a href="#">Edit</a> &middot; <a href="#">Delete</a></span></div>
+        <div class="news-row"><span>Welcome to the community</span><span><a href="#">Edit</a> &middot; <a href="#">Delete</a></span></div>
+        <button class="btn" type="button">Add news item</button>
+      </div>
+    </section>
+  </main>
+  <footer>Powered by <a href="https://robertmonden.com" target="_blank" rel="noopener noreferrer">HyperCS</a> | &copy; 2026 Robert Monden</footer>
+</div>
+</body>
+</html>

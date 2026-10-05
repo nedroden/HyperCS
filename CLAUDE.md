@@ -71,8 +71,8 @@ Run from the repository root unless noted.
 docker compose up --build
 
 # API
-cd api && cargo run            # start the API
-cd api && cargo test           # tests
+cd api && cargo run -p hypercs-server  # start the API (serves on BIND_ADDR, default :8080)
+cd api && cargo test --workspace       # tests (integration tests need Docker; see api/CLAUDE.md)
 cd api && cargo clippy --all-targets -- -D warnings
 cd api && cargo fmt --check
 

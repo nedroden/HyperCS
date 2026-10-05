@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage users – HyperCS Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ebebeb; font-family: Roboto, Helvetica, Arial, sans-serif; color: #444; font-size: 15px; }
+  a { color: #3c7ab5; text-decoration: none; }
+  .wrapper { max-width: 1632px; margin: 0 auto; }
+  header { height: 101px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%); }
+  .userbox { background: #f4f4f4; border-radius: 3px; padding: 10px; font-size: 16px; }
+  nav { height: 40px; background: linear-gradient(90deg, #4a82b8 0%, #6a9bc8 70%, #77a6d0 100%); display: flex; align-items: center; padding: 0 20px; }
+  nav a { color: #fff; font-size: 14px; padding: 0 12px; }
+  main { background: #fff; padding: 20px 20px 40px; }
+  h2 { margin: 14px 5px 6px; font-size: 32px; font-weight: 700; color: #000; }
+  .admin-tabs { margin: 0 5px 24px; display: flex; gap: 4px; border-bottom: 1px solid #ddd; }
+  .admin-tabs a { padding: 10px 16px; font-size: 14px; border-bottom: 2px solid transparent; }
+  .admin-tabs a.active { border-color: #4a82b8; color: #333; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 0 5px; }
+  th, td { text-align: left; padding: 10px 15px; font-size: 14px; border-bottom: 1px solid #eee; }
+  th { color: #777; font-weight: 500; text-transform: uppercase; font-size: 12px; }
+  select { padding: 6px 8px; border: 1px solid #ddd; border-radius: 3px; font-family: inherit; }
+  footer { padding: 12px 10px; font-size: 14px; color: #333; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <a class="logo" href="home.html"><img src="../web/public/logo.svg" alt="HyperCS" height="48"></a>
+    <div class="userbox">Hello, <a href="settings.html"><strong>Administrator</strong></a> | <a href="#">Logout</a></div>
+  </header>
+  <nav><a href="home.html">Home</a><a href="board-index.html">Forum</a><a href="#">Logout</a></nav>
+  <main>
+    <h2>Admin &middot; Users &amp; roles</h2>
+    <div class="admin-tabs">
+      <a href="admin-structure.html">Structure</a>
+      <a class="active" href="admin-users.html">Users &amp; roles</a>
+      <a href="admin-homepage.html">Homepage &amp; news</a>
+    </div>
+    <table>
+      <thead><tr><th>Username</th><th>Display name</th><th>Email</th><th>Joined</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>admin</td><td>Administrator</td><td>admin@example.com</td><td>7 days ago</td>
+          <td><select><option selected>Admin</option><option>Moderator</option><option>Member</option></select></td>
+        </tr>
+        <tr>
+          <td>jane</td><td>Jane</td><td>jane@example.com</td><td>5 days ago</td>
+          <td><select><option>Admin</option><option>Moderator</option><option selected>Member</option></select></td>
+        </tr>
+        <tr>
+          <td>tom</td><td>Tom</td><td>tom@example.com</td><td>2 days ago</td>
+          <td><select><option>Admin</option><option selected>Moderator</option><option>Member</option></select></td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+  <footer>Powered by <a href="https://robertmonden.com" target="_blank" rel="noopener noreferrer">HyperCS</a> | &copy; 2026 Robert Monden</footer>
+</div>
+</body>
+</html>

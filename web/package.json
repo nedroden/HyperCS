@@ -11,15 +11,23 @@
         "typecheck": "tsc -b --noEmit",
         "test": "vitest run",
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "generate:api": "cargo run --quiet --manifest-path ../api/Cargo.toml -p hypercs-server -- openapi > ../api/target/openapi.json && openapi-typescript ../api/target/openapi.json -o src/shared/api/generated/schema.ts"
     },
     "dependencies": {
+        "@hookform/resolvers": "^5.9.1",
         "@tanstack/react-query": "^5.104.0",
         "i18next": "^26.4.2",
+        "openapi-fetch": "^0.17.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
+        "react-hook-form": "^7.89.0",
         "react-i18next": "^17.0.15",
-        "react-router-dom": "^7.18.4"
+        "react-markdown": "^10.1.0",
+        "react-router-dom": "^7.18.4",
+        "rehype-sanitize": "^6.0.0",
+        "remark-gfm": "^4.0.1",
+        "zod": "^3.25.76"
     },
     "devDependencies": {
         "@feature-sliced/steiger-plugin": "^0.8.0",
@@ -31,6 +39,7 @@
         "@types/react-dom": "^19.2.7",
         "@vitejs/plugin-react": "^6.1.1",
         "jsdom": "^30.1.1",
+        "openapi-typescript": "^7.13.0",
         "oxlint": "^1.81.0",
         "prettier": "^3.9.9",
         "steiger": "^0.7.0",

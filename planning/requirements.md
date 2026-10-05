@@ -95,13 +95,34 @@ HyperCS is a web application combining a small CMS (static-style content pages) 
 - **R-F19** The post list is paginated.
 - **R-F20** A reply form (text area and Submit button) is shown at the bottom of the topic.
 
-## 6. Open questions
+## 6. Resolved questions (MVP decisions)
 
-- Is the forum name ("Demo Forum") a site setting, and should it also appear on CMS pages?
-- Which actions require login (viewing, replying, creating topics)? The mockups only show the logged-in view of the forum.
-- How are pinned/locked statuses, and moderation actions (delete, move, lock), exposed in the UI? Not mocked yet.
-- Public profile pages, member list and search are implied by links but not mocked.
-- Settings: which time zones are supported, whether the chosen language is remembered per user account (versus per browser), how the default language is picked for new visitors, and whether an email change requires re-verification.
-- Post formatting: plain text only, or markup/BBCode/Markdown? Not specified.
-- How is the CMS homepage edited (admin UI, not mocked)?
-- Terms of service page content and email verification on registration are not specified.
+These were open questions; they are now decided (see `planning/mvp-prompt.md` section 3/4 and `planning/mvp-plan.md` for the full rationale) and override anything above where they differ.
+
+- The forum name shown in `<title>`/header is not a separate site setting for the MVP; the header never shows a forum title, only the HyperCS logo (R-G2). CMS pages never mention the forum except the "Forum" menu link.
+- Guests may read the forum (boards, topics, posts) but not reply, create topics, quote, or see admin-only categories/boards. Writing requires an account (R-F21).
+- Moderation actions (pin/unpin, lock/unlock, move, delete) are exposed as post/topic-level controls, visible only to moderators/admins; "Move topic" opens a small modal with a destination-board dropdown (`mocks/move-topic.html`).
+- Public profile pages exist at `/forum/users/{username}` (`mocks/profile.html`); there is no member list or search in the MVP (out of scope, see section 7).
+- Time zones: the full IANA tz database, defaulting to `UTC` for new accounts (the browser's detected zone is pre-selected at registration client-side, not enforced). Language is a single source of truth stored per-account once logged in, `localStorage` for guests (R-A16a). Email changes are not re-verified in the MVP (no email sending at all).
+- Post formatting is Markdown (CommonMark via `react-markdown`), sanitized on render, never raw HTML (R-F22).
+- The CMS homepage is edited by admins in the React app (`mocks/admin-homepage.html`): hero, three feature blocks, and news items (create/edit/delete).
+- Terms of service page (`mocks/terms.html`) is static CMS content, editable by admins, linked from registration. No email verification on registration (no email sending in the MVP).
+
+## 7. New requirements (added while building the MVP)
+
+- **R-F21** Guests can read all non-admin-only boards, topics and posts, but all write actions (new topic, reply, quote, edit, delete, moderate) require login; the UI replaces the reply form with a login/register prompt for guests (`mocks/board-index-guest.html`).
+- **R-F22** Post and topic bodies are Markdown; they render sanitized (no raw HTML) with a live preview in the post/topic forms (`mocks/new-topic.html`, `mocks/edit-post.html`).
+- **R-F23** Every post edit is kept as a revision; authors, moderators and admins can view a post's edit history and restore an older revision, which creates a new revision rather than deleting history (`mocks/post-history.html`).
+- **R-F24** Moderators and admins can move a topic to a different board (`mocks/move-topic.html`) and pin/unpin or lock/unlock a topic; locked topics only accept replies from moderators/admins.
+- **R-A17** A public profile page shows a member's display name, avatar initial, join date, post count and "About me" (`mocks/profile.html`).
+- **R-A18** The Settings page has an "Active sessions" section listing signed-in devices with created/last-active times, a "this device" marker and a revoke action (`mocks/settings-sessions.html`).
+- **R-ADM1** Admins have a structure-management screen to create/edit/delete/reorder categories and boards, including the admin-only flag (`mocks/admin-structure.html`).
+- **R-ADM2** Admins have a users screen listing all members with a role dropdown per user (`mocks/admin-users.html`).
+- **R-ADM3** Admins have a homepage/news screen to edit the hero, the three feature blocks, and create/edit/delete news items (`mocks/admin-homepage.html`).
+- **R-G13** Unknown routes and generic errors show a dedicated page with the standard header/nav/footer (`mocks/404.html`).
+- **R-G14** A static Terms of Service page is linked from registration and reachable at all times (`mocks/terms.html`).
+
+## 8. Known gaps (deliberately out of MVP scope)
+
+- **Account deletion** is not implemented. This is a GDPR-relevant gap to schedule for a future release (export/delete personal data on request).
+- Rate limiting, email sending (including email verification and password reset), avatar upload, search, and report-post are all out of scope for the MVP (section 7 of `planning/mvp-prompt.md`).

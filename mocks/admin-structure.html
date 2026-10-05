@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage forum structure – HyperCS Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ebebeb; font-family: Roboto, Helvetica, Arial, sans-serif; color: #444; font-size: 15px; }
+  a { color: #3c7ab5; text-decoration: none; }
+  .wrapper { max-width: 1632px; margin: 0 auto; }
+  header { height: 101px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f4f4f4 0%, #dcdcdc 60%, #c8c8c8 100%); }
+  .userbox { background: #f4f4f4; border-radius: 3px; padding: 10px; font-size: 16px; }
+  nav { height: 40px; background: linear-gradient(90deg, #4a82b8 0%, #6a9bc8 70%, #77a6d0 100%); display: flex; align-items: center; padding: 0 20px; }
+  nav a { color: #fff; font-size: 14px; padding: 0 12px; }
+  main { background: #fff; padding: 20px 20px 40px; }
+  h2 { margin: 14px 5px 6px; font-size: 32px; font-weight: 700; color: #000; }
+  .admin-tabs { margin: 0 5px 24px; display: flex; gap: 4px; border-bottom: 1px solid #ddd; }
+  .admin-tabs a { padding: 10px 16px; font-size: 14px; border-bottom: 2px solid transparent; }
+  .admin-tabs a.active { border-color: #4a82b8; color: #333; font-weight: 500; }
+  .cat-block { margin: 0 5px 24px; border: 1px solid #e8e8e8; }
+  .cat-head { background: #eee; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+  .cat-head .name { font-size: 17px; font-weight: 500; }
+  .cat-head .flag { font-size: 11px; background: #999; color: #fff; padding: 1px 6px; border-radius: 3px; margin-left: 8px; }
+  .row-actions a, .row-actions button { font-size: 13px; margin-left: 10px; background: none; border: 0; color: #3c7ab5; cursor: pointer; font-family: inherit; padding: 0; }
+  .board-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-top: 1px solid #eee; }
+  .board-row .name { font-size: 15px; }
+  .add-row { padding: 10px 15px; }
+  .btn { display: inline-block; background: #4a82b8; color: #fff; border: 0; padding: 8px 16px; border-radius: 3px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  footer { padding: 12px 10px; font-size: 14px; color: #333; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <a class="logo" href="home.html"><img src="../web/public/logo.svg" alt="HyperCS" height="48"></a>
+    <div class="userbox">Hello, <a href="settings.html"><strong>Administrator</strong></a> | <a href="#">Logout</a></div>
+  </header>
+  <nav><a href="home.html">Home</a><a href="board-index.html">Forum</a><a href="#">Logout</a></nav>
+  <main>
+    <h2>Admin &middot; Forum structure</h2>
+    <div class="admin-tabs">
+      <a class="active" href="admin-structure.html">Structure</a>
+      <a href="admin-users.html">Users &amp; roles</a>
+      <a href="admin-homepage.html">Homepage &amp; news</a>
+    </div>
+
+    <div class="cat-block">
+      <div class="cat-head">
+        <div><span class="name">Administration and Moderation</span><span class="flag">Admin only</span></div>
+        <div class="row-actions"><button type="button">&uarr;</button><button type="button">&darr;</button><a href="#">Edit</a><a href="#">Delete</a></div>
+      </div>
+      <div class="board-row">
+        <span class="name">Forum administration</span>
+        <div class="row-actions"><button type="button">&uarr;</button><button type="button">&darr;</button><a href="#">Edit</a><a href="#">Delete</a></div>
+      </div>
+      <div class="add-row"><button class="btn" type="button">Add board</button></div>
+    </div>
+
+    <div class="cat-block">
+      <div class="cat-head">
+        <div><span class="name">My first category</span></div>
+        <div class="row-actions"><button type="button">&uarr;</button><button type="button">&darr;</button><a href="#">Edit</a><a href="#">Delete</a></div>
+      </div>
+      <div class="board-row">
+        <span class="name">General Discussion</span>
+        <div class="row-actions"><button type="button">&uarr;</button><button type="button">&darr;</button><a href="#">Edit</a><a href="#">Delete</a></div>
+      </div>
+      <div class="board-row">
+        <span class="name">Second board</span>
+        <div class="row-actions"><button type="button">&uarr;</button><button type="button">&darr;</button><a href="#">Edit</a><a href="#">Delete</a></div>
+      </div>
+      <div class="add-row"><button class="btn" type="button">Add board</button></div>
+    </div>
+
+    <button class="btn" type="button">Add category</button>
+  </main>
+  <footer>Powered by <a href="https://robertmonden.com" target="_blank" rel="noopener noreferrer">HyperCS</a> | &copy; 2026 Robert Monden</footer>
+</div>
+</body>
+</html>

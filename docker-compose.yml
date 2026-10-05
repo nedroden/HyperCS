@@ -36,7 +36,14 @@ services:
     environment:
       BIND_ADDR: 0.0.0.0:8080
       DATABASE_URL: postgres://hypercs:hypercs@db:5432/hypercs
-      RUST_LOG: info,hypercs_api=debug
+      RUST_LOG: info,hypercs_api=debug,hypercs_server=debug
+      RUN_MIGRATIONS_ON_START: "true"
+      COOKIE_SECURE: "false"
+      ALLOWED_ORIGINS: ""
+      API_DOCS_ENABLED: "true"
+      ADMIN_USERNAME: admin
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: change-me-now
     ports:
       - "8080:8080"
     depends_on:
