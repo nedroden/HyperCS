@@ -3,25 +3,36 @@
 
 use axum::{
     extract::FromRequestParts,
-    http::{Method, request::Parts},
+    http::{HeaderMap, Method, header, request::Parts},
 };
 use axum_extra::extract::CookieJar;
 use chrono::Utc;
-use hypercs_domain::{DomainError, Role};
+use hypercs_domain::{DomainError, Role, constants::LAST_SEEN_THROTTLE_MINUTES};
 use uuid::Uuid;
 
 use crate::{
-    auth::crypto::hash_token, auth::origin::origin_is_allowed, error::ApiError, state::AppState,
+    auth::{
+        cookie::idle_expiry,
+        crypto::{hash_token, tokens_equal},
+        origin::{OriginHeaders, origin_is_allowed},
+    },
+    error::{ApiError, ApiResult},
+    middleware::RequestUser,
+    state::AppState,
 };
 
 pub const SESSION_COOKIE: &str = "hypercs_session";
 pub const CSRF_HEADER: &str = "x-csrf-token";
 
-#[derive(Clone, Copy, Debug)]
+/// The authenticated principal plus the session it came from.
+#[derive(Clone, Debug)]
 pub struct AuthUser {
     pub id: Uuid,
+    /// Read from the database on every request, so role changes apply
+    /// immediately.
     pub role: Role,
     pub session_id: Uuid,
+    pub csrf_token: String,
 }
 
 impl AuthUser {
@@ -33,61 +44,42 @@ impl AuthUser {
     }
 }
 
-/// Resolves the session cookie to a user, throttling `last_seen_at` updates
-/// to at most once per minute and dropping sessions found to be expired.
-async fn resolve_session(parts: &Parts, state: &AppState) -> Option<AuthUser> {
+/// Resolves the session cookie to a user. Expired sessions are deleted; a
+/// valid session's `last_seen_at` is touched at most once a minute. Database
+/// failures are errors (500), not silently treated as "logged out".
+async fn resolve_session(parts: &Parts, state: &AppState) -> ApiResult<Option<AuthUser>> {
     let jar = CookieJar::from_headers(&parts.headers);
-    let token = jar.get(SESSION_COOKIE)?.value().to_string();
-    let token_hash = hash_token(&token);
-    let row = hypercs_db::sessions::find_by_token_hash(&state.db, &token_hash)
-        .await
-        .ok()??;
+    let Some(cookie) = jar.get(SESSION_COOKIE) else {
+        return Ok(None);
+    };
+    let token_hash = hash_token(cookie.value());
+    let Some(row) = hypercs_db::sessions::find_by_token_hash(&state.db, &token_hash).await? else {
+        return Ok(None);
+    };
     let now = Utc::now();
-    if row.expires_at < now {
-        let _ = hypercs_db::sessions::delete_by_id(&state.db, row.id).await;
-        return None;
+    if row.expires_at <= now {
+        hypercs_db::sessions::delete_by_id(&state.db, row.id).await?;
+        return Ok(None);
     }
-    if (now - row.last_seen_at).num_minutes()
-        >= hypercs_domain::constants::LAST_SEEN_THROTTLE_MINUTES
-    {
-        let _ = hypercs_db::sessions::touch_last_seen(&state.db, row.id, now).await;
+    if now - row.last_seen_at >= chrono::Duration::minutes(LAST_SEEN_THROTTLE_MINUTES) {
+        hypercs_db::sessions::touch(
+            &state.db,
+            row.id,
+            now,
+            chrono::Duration::minutes(LAST_SEEN_THROTTLE_MINUTES),
+            idle_expiry(now),
+        )
+        .await?;
     }
-    let role = Role::from_db_str(&row.role)?;
-    Some(AuthUser {
+    if let Some(slot) = parts.extensions.get::<RequestUser>() {
+        let _ = slot.0.set(row.user_id);
+    }
+    Ok(Some(AuthUser {
         id: row.user_id,
-        role,
+        role: Role::from_db_or_member(&row.role),
         session_id: row.id,
-    })
-}
-
-/// Returns the session's CSRF token alongside the user, for the CSRF check
-/// in the `AuthUser` extractor.
-async fn resolve_session_with_csrf(parts: &Parts, state: &AppState) -> Option<(AuthUser, String)> {
-    let jar = CookieJar::from_headers(&parts.headers);
-    let token = jar.get(SESSION_COOKIE)?.value().to_string();
-    let token_hash = hash_token(&token);
-    let row = hypercs_db::sessions::find_by_token_hash(&state.db, &token_hash)
-        .await
-        .ok()??;
-    let now = Utc::now();
-    if row.expires_at < now {
-        let _ = hypercs_db::sessions::delete_by_id(&state.db, row.id).await;
-        return None;
-    }
-    if (now - row.last_seen_at).num_minutes()
-        >= hypercs_domain::constants::LAST_SEEN_THROTTLE_MINUTES
-    {
-        let _ = hypercs_db::sessions::touch_last_seen(&state.db, row.id, now).await;
-    }
-    let role = Role::from_db_str(&row.role)?;
-    Some((
-        AuthUser {
-            id: row.user_id,
-            role,
-            session_id: row.id,
-        },
-        row.csrf_token,
-    ))
+        csrf_token: row.csrf_token,
+    }))
 }
 
 fn is_unsafe_method(method: &Method) -> bool {
@@ -97,24 +89,27 @@ fn is_unsafe_method(method: &Method) -> bool {
     )
 }
 
-fn check_same_origin(parts: &Parts, state: &AppState) -> Result<(), ApiError> {
-    let origin = parts
-        .headers
-        .get(axum::http::header::ORIGIN)
-        .and_then(|v| v.to_str().ok());
-    let host = parts
-        .headers
-        .get(axum::http::header::HOST)
-        .and_then(|v| v.to_str().ok());
-    if origin_is_allowed(origin, host, &state.config.allowed_origins) {
+fn header_str<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
+    headers.get(name).and_then(|v| v.to_str().ok())
+}
+
+fn check_same_origin(parts: &Parts, state: &AppState) -> ApiResult<()> {
+    let headers = OriginHeaders {
+        origin: header_str(&parts.headers, header::ORIGIN.as_str()),
+        host: header_str(&parts.headers, header::HOST.as_str()),
+        forwarded_host: header_str(&parts.headers, "x-forwarded-host"),
+        sec_fetch_site: header_str(&parts.headers, "sec-fetch-site"),
+    };
+    if origin_is_allowed(headers, &state.config.allowed_origins) {
         Ok(())
     } else {
-        Err(ApiError::Domain(DomainError::Forbidden))
+        Err(DomainError::Forbidden.into())
     }
 }
 
-/// Required authentication. For state-changing methods this also enforces
-/// same-origin + the `X-CSRF-Token` header against the session's token.
+/// Required authentication. For state-changing methods this also enforces a
+/// trusted `Origin` and the `X-CSRF-Token` header against the session's token
+/// (checked in that order, after the session lookup: guests get 401).
 impl FromRequestParts<AppState> for AuthUser {
     type Rejection = ApiError;
 
@@ -125,28 +120,22 @@ impl FromRequestParts<AppState> for AuthUser {
         let unsafe_method = is_unsafe_method(&parts.method);
         if unsafe_method {
             check_same_origin(parts, state)?;
-            let (user, csrf_token) = resolve_session_with_csrf(parts, state)
-                .await
-                .ok_or(ApiError::Domain(DomainError::Unauthorized))?;
-            let header = parts
-                .headers
-                .get(CSRF_HEADER)
-                .and_then(|v| v.to_str().ok())
-                .unwrap_or("");
-            if header.is_empty() || header != csrf_token {
-                return Err(ApiError::Domain(DomainError::Forbidden));
-            }
-            Ok(user)
-        } else {
-            resolve_session(parts, state)
-                .await
-                .ok_or(ApiError::Domain(DomainError::Unauthorized))
         }
+        let user = resolve_session(parts, state)
+            .await?
+            .ok_or_else(ApiError::unauthenticated)?;
+        if unsafe_method {
+            let header = header_str(&parts.headers, CSRF_HEADER).unwrap_or("");
+            if header.is_empty() || !tokens_equal(header, &user.csrf_token) {
+                return Err(DomainError::Forbidden.into());
+            }
+        }
+        Ok(user)
     }
 }
 
-/// Optional authentication for guest-accessible endpoints. Never fails;
-/// an invalid/missing session simply resolves to `None` (a guest).
+/// Optional authentication for guest-accessible reads. Never fails because of
+/// a missing/invalid session (that is just a guest).
 pub struct OptionalAuthUser(pub Option<AuthUser>);
 
 impl FromRequestParts<AppState> for OptionalAuthUser {
@@ -156,12 +145,12 @@ impl FromRequestParts<AppState> for OptionalAuthUser {
         parts: &mut Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
-        Ok(OptionalAuthUser(resolve_session(parts, state).await))
+        Ok(OptionalAuthUser(resolve_session(parts, state).await?))
     }
 }
 
-/// Validates same-origin for state-changing requests that don't require an
-/// existing session (register, login).
+/// Origin check only, for state-changing requests that have no session yet
+/// (register, login).
 pub struct SameOrigin;
 
 impl FromRequestParts<AppState> for SameOrigin {

@@ -1,25 +1,29 @@
-import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useSession } from '@/entities/session';
+import { SignInForm } from '@/features/sign-in';
+import { hasLoginRedirect, redirectTargetFrom } from '@/shared/lib';
 import { FormBox } from '@/shared/ui';
 
 export function LoginPage() {
     const { t } = useTranslation();
-    const { login } = useSession();
-    const navigate = useNavigate();
+    const { status } = useSession();
+    const { state } = useLocation();
 
-    function onSubmit(e: FormEvent) {
-        e.preventDefault();
-        login(); // placeholder until the API has authentication
-        navigate('/');
+    // Logged in (also right after a successful sign-in): go back where the user came from.
+    if (status === 'authenticated') {
+        return <Navigate to={redirectTargetFrom(state)} replace />;
     }
 
     return (
         <FormBox
             heading={t('auth.login.heading')}
             title={t('auth.login.title')}
-            intro={t('auth.login.intro')}
+            intro={
+                hasLoginRedirect(state)
+                    ? t('auth.login.required')
+                    : t('auth.login.intro')
+            }
             footer={
                 <>
                     {t('auth.login.noAccount')}{' '}
@@ -27,36 +31,7 @@ export function LoginPage() {
                 </>
             }
         >
-            <form onSubmit={onSubmit}>
-                <label htmlFor="username">{t('auth.username')}</label>
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    autoComplete="username"
-                />
-
-                <label htmlFor="password">{t('auth.password')}</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    autoComplete="current-password"
-                />
-
-                <div className="form-row">
-                    <span>
-                        <input type="checkbox" id="remember" name="remember" />{' '}
-                        <label htmlFor="remember" className="inline">
-                            {t('auth.remember')}
-                        </label>
-                    </span>
-                </div>
-
-                <button className="btn btn-block" type="submit">
-                    {t('auth.login.submit')}
-                </button>
-            </form>
+            <SignInForm />
         </FormBox>
     );
 }

@@ -1,35 +1,69 @@
-//! Creates the sample forum structure from the mocks on first start. Runs
-//! only when no categories exist yet, so it is safe to call on every boot.
+//! First-start seeding: the admin account from `ADMIN_*` and the sample
+//! forum structure from the mocks. Both steps are idempotent and safe to run
+//! on every boot.
 
+use chrono::Utc;
+use hypercs_api::services::{auth_service, topic_service};
 use hypercs_db::PgPool;
 use uuid::Uuid;
 
-pub async fn seed_sample_structure(db: &PgPool) -> anyhow::Result<()> {
-    let existing = hypercs_db::structure::list_categories_ordered(db).await?;
-    if !existing.is_empty() {
-        return Ok(());
+use crate::config::Config;
+
+/// Creates the first admin from the environment if no admin exists yet.
+/// Returns whether an account was created.
+pub async fn bootstrap_admin(db: &PgPool, config: &Config) -> anyhow::Result<bool> {
+    match (
+        &config.admin_username,
+        &config.admin_email,
+        &config.admin_password,
+    ) {
+        (Some(username), Some(email), Some(password)) => {
+            auth_service::bootstrap_admin(db, username, email, password)
+                .await
+                .map_err(|e| anyhow::anyhow!("admin bootstrap failed: {e}"))
+        }
+        _ => {
+            tracing::warn!(
+                "ADMIN_USERNAME/ADMIN_EMAIL/ADMIN_PASSWORD not fully set; skipping admin bootstrap"
+            );
+            Ok(false)
+        }
     }
-    let Some(admin_id) = hypercs_db::users::first_admin_id(db).await? else {
+}
+
+/// Creates the sample structure (an admin-only "Administration and
+/// Moderation" category with "Forum administration"; "My first category"
+/// with "General Discussion" and "Second board"; a welcome topic) when there
+/// are no categories yet, in one transaction. Content is English user content
+/// and is not translated. Returns whether anything was created.
+pub async fn seed_sample_structure(db: &PgPool) -> anyhow::Result<bool> {
+    let mut tx = db.begin().await?;
+    // Serialize concurrent first starts.
+    sqlx::query("select pg_advisory_xact_lock(hashtextextended('hypercs-seed', 0))")
+        .execute(&mut *tx)
+        .await?;
+    if hypercs_db::structure::count_categories(&mut *tx).await? > 0 {
+        return Ok(false);
+    }
+    let Some(admin_id) = hypercs_db::users::first_admin_id(&mut *tx).await? else {
         tracing::warn!("no admin account yet; skipping sample structure seed");
-        return Ok(());
+        return Ok(false);
     };
 
-    // Admin-only category, as in the mocks.
-    let admin_category_id = Uuid::now_v7();
+    let admin_category = Uuid::now_v7();
     hypercs_db::structure::create_category(
-        db,
-        admin_category_id,
+        &mut *tx,
+        admin_category,
         "Administration and Moderation",
         "Visible to administrators only.",
         true,
         0,
     )
     .await?;
-    let admin_board_id = Uuid::now_v7();
     hypercs_db::structure::create_board(
-        db,
-        admin_board_id,
-        admin_category_id,
+        &mut *tx,
+        Uuid::now_v7(),
+        admin_category,
         "Forum administration",
         "Discuss moderation and site administration.",
         true,
@@ -37,26 +71,24 @@ pub async fn seed_sample_structure(db: &PgPool) -> anyhow::Result<()> {
     )
     .await?;
 
-    // Public category with a welcome topic.
-    let category_id = Uuid::now_v7();
-    hypercs_db::structure::create_category(db, category_id, "My first category", "", false, 1)
+    let category = Uuid::now_v7();
+    hypercs_db::structure::create_category(&mut *tx, category, "My first category", "", false, 1)
         .await?;
-    let general_board_id = Uuid::now_v7();
+    let general = Uuid::now_v7();
     hypercs_db::structure::create_board(
-        db,
-        general_board_id,
-        category_id,
+        &mut *tx,
+        general,
+        category,
         "General Discussion",
-        "Talk about anything HyperCS related.",
+        "Talk about anything.",
         false,
         0,
     )
     .await?;
-    let second_board_id = Uuid::now_v7();
     hypercs_db::structure::create_board(
-        db,
-        second_board_id,
-        category_id,
+        &mut *tx,
+        Uuid::now_v7(),
+        category,
         "Second board",
         "A second place to talk about things.",
         false,
@@ -64,27 +96,18 @@ pub async fn seed_sample_structure(db: &PgPool) -> anyhow::Result<()> {
     )
     .await?;
 
-    let topic_id = Uuid::now_v7();
-    let post_id = Uuid::now_v7();
-    let title = "Welcome to HyperCS!";
-    let body = "Welcome to your brand new HyperCS forum! This is the first post in your first topic.\n\n\
-                Feel free to edit or delete it, create new boards and categories, and invite your community.";
-    hypercs_db::topics::create_topic(
-        db,
-        topic_id,
-        general_board_id,
-        title,
-        "welcome-to-hypercs",
+    topic_service::insert_topic_with_first_post(
+        &mut tx,
+        general,
         admin_id,
+        "Welcome to HyperCS!",
+        "Welcome to your brand new forum! This is the first post in your first topic.\n\n\
+         Feel free to edit or delete it, create new boards and categories, and invite your community.",
+        Utc::now(),
     )
     .await?;
-    hypercs_db::posts::create_post(db, post_id, topic_id, admin_id, body).await?;
-    let now = chrono::Utc::now();
-    hypercs_db::topics::set_last_post(db, topic_id, Some(post_id), Some(now)).await?;
-    hypercs_db::structure::bump_board_counts(db, general_board_id, 1, 1).await?;
-    hypercs_db::structure::set_board_last_post(db, general_board_id, Some(post_id)).await?;
-    hypercs_db::users::bump_post_count(db, admin_id, 1).await?;
 
+    tx.commit().await?;
     tracing::info!("seeded sample forum structure");
-    Ok(())
+    Ok(true)
 }

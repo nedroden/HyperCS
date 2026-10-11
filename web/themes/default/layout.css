@@ -1,4 +1,6 @@
 .wrapper {
+    width: 85%;
+    min-width: var(--min-width);
     max-width: var(--max-width);
     margin: 0 auto;
 }

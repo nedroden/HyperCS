@@ -1,2 +1,3 @@
-export { i18n } from './config';
+export { applyDefaultLanguage, i18n } from './config';
 export { DEFAULT_LANGUAGE, LANGUAGES, type LanguageCode } from './languages';
+export { isLanguageCode } from './languages';

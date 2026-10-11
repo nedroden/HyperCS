@@ -9,5 +9,7 @@ thiserror = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
 unicode-normalization = { workspace = true }
+utoipa = { workspace = true }
+chrono-tz = { workspace = true }
 
 [dev-dependencies]

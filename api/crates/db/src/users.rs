@@ -1,21 +1,24 @@
 use chrono::{DateTime, Utc};
 use hypercs_domain::Role;
-use serde::Serialize;
-use sqlx::{FromRow, PgExecutor};
-use utoipa::ToSchema;
+use sqlx::{FromRow, PgConnection, PgExecutor};
 use uuid::Uuid;
+
+/// Compact author/user summary joined into other rows' queries.
+#[derive(Debug, Clone, FromRow)]
+pub struct UserSummaryRow {
+    pub id: Uuid,
+    pub username: String,
+    pub display_name: String,
+    pub role: String,
+}
 
 #[derive(Debug, Clone, FromRow)]
 pub struct UserAuthRow {
     pub id: Uuid,
-    pub username: String,
-    pub display_name: String,
     pub password_hash: String,
-    pub role: String,
 }
 
-#[derive(Debug, Clone, FromRow, Serialize, ToSchema)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, FromRow)]
 pub struct MeRow {
     pub id: Uuid,
     pub username: String,
@@ -36,8 +39,7 @@ pub struct MeRow {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, FromRow, Serialize, ToSchema)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, FromRow)]
 pub struct PublicProfileRow {
     pub id: Uuid,
     pub username: String,
@@ -50,37 +52,41 @@ pub struct PublicProfileRow {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, FromRow, Serialize, ToSchema)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, FromRow)]
 pub struct AdminUserRow {
     pub id: Uuid,
     pub username: String,
     pub display_name: String,
     pub email: String,
     pub role: String,
+    pub post_count: i32,
     pub created_at: DateTime<Utc>,
 }
 
-#[allow(clippy::too_many_arguments)]
+const ME_SELECT: &str = "select id, username, display_name, email, role, first_name, last_name, \
+    location, website, about_me, language, timezone, notify_on_reply, notify_on_quote, \
+    show_online, post_count, created_at from users";
+
 pub async fn create_user<'e>(
     ex: impl PgExecutor<'e>,
     id: Uuid,
     username: &str,
-    display_name: &str,
     email: &str,
     password_hash: &str,
     role: Role,
+    language: &str,
 ) -> sqlx::Result<()> {
+    // The display name defaults to the username.
     sqlx::query(
-        "insert into users (id, username, display_name, email, password_hash, role) \
-         values ($1, $2, $3, $4, $5, $6)",
+        "insert into users (id, username, display_name, email, password_hash, role, language) \
+         values ($1, $2, $2, $3, $4, $5, $6)",
     )
     .bind(id)
     .bind(username)
-    .bind(display_name)
     .bind(email)
     .bind(password_hash)
     .bind(role.as_db_str())
+    .bind(language)
     .execute(ex)
     .await?;
     Ok(())
@@ -90,36 +96,51 @@ pub async fn find_auth_by_username<'e>(
     ex: impl PgExecutor<'e>,
     username: &str,
 ) -> sqlx::Result<Option<UserAuthRow>> {
-    sqlx::query_as::<_, UserAuthRow>(
-        "select id, username, display_name, password_hash, role from users where lower(username) = lower($1)",
-    )
-    .bind(username)
+    sqlx::query_as("select id, password_hash from users where lower(username) = lower($1)")
+        .bind(username)
+        .fetch_optional(ex)
+        .await
+}
+
+/// Reads (and row-locks, inside a transaction) the account's own record.
+pub async fn find_me_for_update(ex: &mut PgConnection, id: Uuid) -> sqlx::Result<Option<MeRow>> {
+    sqlx::query_as(const_format::concatcp!(
+        ME_SELECT,
+        " where id = $1 for update"
+    ))
+    .bind(id)
     .fetch_optional(ex)
     .await
 }
 
 pub async fn find_me<'e>(ex: impl PgExecutor<'e>, id: Uuid) -> sqlx::Result<Option<MeRow>> {
-    sqlx::query_as::<_, MeRow>(
-        "select id, username, display_name, email, role, first_name, last_name, location, \
-         website, about_me, language, timezone, notify_on_reply, notify_on_quote, show_online, \
-         post_count, created_at from users where id = $1",
-    )
-    .bind(id)
-    .fetch_optional(ex)
-    .await
+    sqlx::query_as(const_format::concatcp!(ME_SELECT, " where id = $1"))
+        .bind(id)
+        .fetch_optional(ex)
+        .await
 }
 
 pub async fn find_public_profile<'e>(
     ex: impl PgExecutor<'e>,
     username: &str,
 ) -> sqlx::Result<Option<PublicProfileRow>> {
-    sqlx::query_as::<_, PublicProfileRow>(
+    sqlx::query_as(
         "select id, username, display_name, role, location, website, about_me, post_count, created_at \
          from users where lower(username) = lower($1)",
     )
     .bind(username)
     .fetch_optional(ex)
     .await
+}
+
+pub async fn summary_by_id<'e>(
+    ex: impl PgExecutor<'e>,
+    id: Uuid,
+) -> sqlx::Result<Option<UserSummaryRow>> {
+    sqlx::query_as("select id, username, display_name, role from users where id = $1")
+        .bind(id)
+        .fetch_optional(ex)
+        .await
 }
 
 pub async fn username_taken<'e>(ex: impl PgExecutor<'e>, username: &str) -> sqlx::Result<bool> {
@@ -131,12 +152,20 @@ pub async fn username_taken<'e>(ex: impl PgExecutor<'e>, username: &str) -> sqlx
     Ok(row.0)
 }
 
-pub async fn email_taken<'e>(ex: impl PgExecutor<'e>, email: &str) -> sqlx::Result<bool> {
-    let row: (bool,) =
-        sqlx::query_as("select exists(select 1 from users where lower(email) = lower($1))")
-            .bind(email)
-            .fetch_one(ex)
-            .await?;
+/// True if another account (not `except`) already uses the email.
+pub async fn email_taken_by_other<'e>(
+    ex: impl PgExecutor<'e>,
+    email: &str,
+    except: Option<Uuid>,
+) -> sqlx::Result<bool> {
+    let row: (bool,) = sqlx::query_as(
+        "select exists(select 1 from users where lower(email) = lower($1) \
+         and id is distinct from $2)",
+    )
+    .bind(email)
+    .bind(except)
+    .fetch_one(ex)
+    .await?;
     Ok(row.0)
 }
 
@@ -149,7 +178,7 @@ pub async fn any_admin_exists<'e>(ex: impl PgExecutor<'e>) -> sqlx::Result<bool>
 
 pub async fn first_admin_id<'e>(ex: impl PgExecutor<'e>) -> sqlx::Result<Option<Uuid>> {
     let row: Option<(Uuid,)> =
-        sqlx::query_as("select id from users where role = 'admin' order by created_at limit 1")
+        sqlx::query_as("select id from users where role = 'admin' order by created_at, id limit 1")
             .fetch_optional(ex)
             .await?;
     Ok(row.map(|r| r.0))
@@ -206,14 +235,16 @@ pub async fn update_password_hash<'e>(
     Ok(())
 }
 
-pub async fn password_hash_by_id<'e>(
-    ex: impl PgExecutor<'e>,
+/// Locks the user row and returns the current password hash.
+pub async fn password_hash_for_update(
+    ex: &mut PgConnection,
     id: Uuid,
 ) -> sqlx::Result<Option<String>> {
-    let row: Option<(String,)> = sqlx::query_as("select password_hash from users where id = $1")
-        .bind(id)
-        .fetch_optional(ex)
-        .await?;
+    let row: Option<(String,)> =
+        sqlx::query_as("select password_hash from users where id = $1 for update")
+            .bind(id)
+            .fetch_optional(ex)
+            .await?;
     Ok(row.map(|r| r.0))
 }
 
@@ -251,18 +282,39 @@ pub async fn update_role<'e>(ex: impl PgExecutor<'e>, id: Uuid, role: Role) -> s
     Ok(())
 }
 
-pub async fn role_by_id<'e>(ex: impl PgExecutor<'e>, id: Uuid) -> sqlx::Result<Option<String>> {
-    let row: Option<(String,)> = sqlx::query_as("select role from users where id = $1")
-        .bind(id)
-        .fetch_optional(ex)
-        .await?;
-    Ok(row.map(|r| r.0))
+/// Locks all admin rows (stable order) and returns their ids; used to make
+/// "never remove the last admin" race-free.
+pub async fn lock_admins(ex: &mut PgConnection) -> sqlx::Result<Vec<Uuid>> {
+    let rows: Vec<(Uuid,)> =
+        sqlx::query_as("select id from users where role = 'admin' order by id for update")
+            .fetch_all(ex)
+            .await?;
+    Ok(rows.into_iter().map(|r| r.0).collect())
 }
 
-pub async fn list_all<'e>(ex: impl PgExecutor<'e>) -> sqlx::Result<Vec<AdminUserRow>> {
-    sqlx::query_as::<_, AdminUserRow>(
-        "select id, username, display_name, email, role, created_at from users order by created_at",
+/// Locks one user (looked up by case-insensitive username) and returns
+/// `(id, role)`.
+pub async fn lock_by_username(
+    ex: &mut PgConnection,
+    username: &str,
+) -> sqlx::Result<Option<(Uuid, String)>> {
+    sqlx::query_as("select id, role from users where lower(username) = lower($1) for update")
+        .bind(username)
+        .fetch_optional(ex)
+        .await
+}
+
+pub async fn list_page<'e>(
+    ex: impl PgExecutor<'e>,
+    limit: i64,
+    offset: i64,
+) -> sqlx::Result<Vec<AdminUserRow>> {
+    sqlx::query_as(
+        "select id, username, display_name, email, role, post_count, created_at from users \
+         order by created_at, id limit $1 offset $2",
     )
+    .bind(limit)
+    .bind(offset)
     .fetch_all(ex)
     .await
 }
@@ -274,15 +326,12 @@ pub async fn count_all<'e>(ex: impl PgExecutor<'e>) -> sqlx::Result<i64> {
     Ok(row.0)
 }
 
-pub async fn newest_member<'e>(
-    ex: impl PgExecutor<'e>,
-) -> sqlx::Result<Option<(String, DateTime<Utc>)>> {
-    let row: Option<(String, DateTime<Utc>)> = sqlx::query_as(
-        "select display_name, created_at from users order by created_at desc limit 1",
+pub async fn newest_member<'e>(ex: impl PgExecutor<'e>) -> sqlx::Result<Option<UserSummaryRow>> {
+    sqlx::query_as(
+        "select id, username, display_name, role from users order by created_at desc, id desc limit 1",
     )
     .fetch_optional(ex)
-    .await?;
-    Ok(row)
+    .await
 }
 
 pub async fn bump_post_count<'e>(
@@ -298,21 +347,6 @@ pub async fn bump_post_count<'e>(
     Ok(())
 }
 
-pub async fn recompute_post_count<'e>(ex: impl PgExecutor<'e>, id: Uuid) -> sqlx::Result<()> {
-    sqlx::query(
-        "update users set post_count = (select count(*) from posts where author_id = $1) where id = $1",
-    )
-    .bind(id)
-    .execute(ex)
-    .await?;
-    Ok(())
-}
-
-pub async fn all_ids<'e>(ex: impl PgExecutor<'e>) -> sqlx::Result<Vec<Uuid>> {
-    let rows: Vec<(Uuid,)> = sqlx::query_as("select id from users").fetch_all(ex).await?;
-    Ok(rows.into_iter().map(|r| r.0).collect())
-}
-
 pub async fn created_at_by_id<'e>(
     ex: impl PgExecutor<'e>,
     id: Uuid,
@@ -323,4 +357,14 @@ pub async fn created_at_by_id<'e>(
             .fetch_optional(ex)
             .await?;
     Ok(row.map(|r| r.0))
+}
+
+/// Serializes one user's posting (flood control + duplicate guard) without
+/// touching the user row, so it cannot deadlock with counter updates.
+pub async fn lock_posting(ex: &mut PgConnection, user_id: Uuid) -> sqlx::Result<()> {
+    sqlx::query("select pg_advisory_xact_lock(hashtextextended(($1::uuid)::text, 0))")
+        .bind(user_id)
+        .execute(ex)
+        .await?;
+    Ok(())
 }

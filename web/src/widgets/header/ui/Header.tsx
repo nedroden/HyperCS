@@ -1,16 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import { Link, NavLink } from 'react-router-dom';
 import { useSession } from '@/entities/session';
+import { useSiteSettings } from '@/entities/site-setting';
+import { SignOutButton } from '@/features/sign-out';
 
 export function Header() {
     const { t } = useTranslation();
-    const { user, logout } = useSession();
+    const { status, user, isAdmin } = useSession();
+    const siteTitle = useSiteSettings().data?.siteTitle ?? t('app.name');
+    // While `/me` loads (or failed) show neither the guest nor the member links, to avoid a flash.
+    const known = status === 'authenticated' || status === 'guest';
     return (
         <>
             <header className="site-header">
                 <h1>
                     <Link className="logo" to="/">
-                        <img src="/logo.svg" alt={t('app.name')} height={48} />
+                        <img src="/logo.svg" alt={siteTitle} height={48} />
                     </Link>
                 </h1>
                 <div className="userbox">
@@ -18,40 +23,40 @@ export function Header() {
                         <>
                             {t('userbox.hello')}{' '}
                             <Link to="/settings">
-                                <strong>{user.name}</strong>
+                                <strong>{user.displayName}</strong>
                             </Link>{' '}
                             |{' '}
-                            <button
-                                type="button"
-                                className="link-button"
-                                onClick={logout}
-                            >
-                                {t('userbox.logout')}
-                            </button>
+                            {isAdmin && (
+                                <>
+                                    <Link to="/admin">
+                                        {t('admin.nav.link')}
+                                    </Link>{' '}
+                                    |{' '}
+                                </>
+                            )}
+                            <SignOutButton label={t('userbox.logout')} />
                         </>
                     ) : (
-                        <>
-                            <Link to="/login">{t('userbox.login')}</Link> |{' '}
-                            <Link to="/register">{t('userbox.register')}</Link>
-                        </>
+                        known && (
+                            <>
+                                <Link to="/login">{t('userbox.login')}</Link> |{' '}
+                                <Link to="/register">
+                                    {t('userbox.register')}
+                                </Link>
+                            </>
+                        )
                     )}
                 </div>
             </header>
-            <nav className="site-nav">
+            <nav className="site-nav" aria-label={t('a11y.mainNavigation')}>
                 <NavLink to="/" end>
                     {t('nav.home')}
                 </NavLink>
                 <NavLink to="/forum">{t('nav.forum')}</NavLink>
                 {user ? (
-                    <button
-                        type="button"
-                        className="link-button"
-                        onClick={logout}
-                    >
-                        {t('nav.logout')}
-                    </button>
+                    <SignOutButton label={t('nav.logout')} />
                 ) : (
-                    <NavLink to="/login">{t('nav.login')}</NavLink>
+                    known && <NavLink to="/login">{t('nav.login')}</NavLink>
                 )}
             </nav>
         </>

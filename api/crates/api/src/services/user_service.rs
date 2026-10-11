@@ -1,196 +1,266 @@
 use hypercs_db::PgPool;
-use hypercs_domain::validation::normalize_text;
-use hypercs_domain::{DomainError, DomainResult, Role};
+use hypercs_domain::{
+    AuthUser as Principal, DomainError, Role,
+    constants::{
+        ABOUT_ME_MAX, DISPLAY_NAME_MAX, DISPLAY_NAME_MIN, EMAIL_MAX, LOCATION_MAX, PERSON_NAME_MAX,
+        USERS_PER_PAGE, WEBSITE_MAX,
+    },
+    pagination::PageParams,
+    policy,
+    validation::{is_http_url, is_valid_timezone},
+};
 use uuid::Uuid;
-use validator::ValidationError;
 
-use crate::dto::{
-    ChangePasswordRequest, UpdateAccountRequest, UpdatePreferencesRequest, UpdateProfileRequest,
+use crate::{
+    auth::{AuthUser, crypto},
+    dto::{
+        AdminUserPage, ChangePasswordRequest, MeResponse, PublicProfile, SessionInfo,
+        UpdateAccountRequest, UpdatePreferencesRequest, UpdateProfileRequest,
+    },
+    error::{ApiError, ApiResult},
+    services::{text, view},
 };
 
-pub fn validate_language(value: &str) -> Result<(), ValidationError> {
-    if value == "en-US" || value == "de" {
-        Ok(())
-    } else {
-        Err(ValidationError::new("invalid_language"))
-    }
-}
-
-fn validate_website(website: &Option<String>) -> DomainResult<()> {
-    if let Some(url) = website
-        && !url.is_empty()
-        && !(url.starts_with("http://") || url.starts_with("https://"))
-    {
-        return Err(DomainError::validation(
-            "website",
-            "invalid_url",
-            "Website must start with http:// or https://.",
-        ));
-    }
-    Ok(())
-}
-
-pub async fn get_me(db: &PgPool, user_id: Uuid) -> DomainResult<hypercs_db::users::MeRow> {
-    hypercs_db::users::find_me(db, user_id)
-        .await
-        .map_err(|_| DomainError::Internal)?
-        .ok_or(DomainError::NotFound)
+pub async fn get_me(db: &PgPool, user: &AuthUser) -> ApiResult<MeResponse> {
+    let row = hypercs_db::users::find_me(db, user.id)
+        .await?
+        .ok_or_else(ApiError::unauthenticated)?;
+    Ok(view::me(row, user.csrf_token.clone()))
 }
 
 pub async fn update_profile(
     db: &PgPool,
     user_id: Uuid,
     req: &UpdateProfileRequest,
-) -> DomainResult<()> {
-    validate_website(&req.website)?;
-    let display_name = normalize_text(&req.display_name, false);
-    if hypercs_domain::validation::contains_zero_width(&display_name) {
-        return Err(DomainError::validation(
-            "displayName",
-            "invalid_display_name",
-            "Display name contains invalid characters.",
-        ));
-    }
-    let location = req.location.as_deref().map(|s| normalize_text(s, false));
-    let about_me = req.about_me.as_deref().map(|s| normalize_text(s, true));
+) -> ApiResult<()> {
+    let mut tx = db.begin().await?;
+    let me = hypercs_db::users::find_me_for_update(&mut tx, user_id)
+        .await?
+        .ok_or_else(ApiError::unauthenticated)?;
+
+    let display_name = match &req.display_name {
+        Some(name) => text::line("displayName", name, DISPLAY_NAME_MIN, DISPLAY_NAME_MAX)?,
+        None => me.display_name,
+    };
+    let location = text::merge_nullable(me.location, &req.location, |v| {
+        text::line("location", v, 0, LOCATION_MAX)
+    })?;
+    let website = text::merge_nullable(me.website, &req.website, |v| {
+        let url = text::line("website", v, 0, WEBSITE_MAX)?;
+        if !url.is_empty() && !is_http_url(&url) {
+            return Err(ApiError::validation(
+                "website",
+                "url",
+                "Website must be an http:// or https:// URL.",
+            ));
+        }
+        Ok(url)
+    })?;
+    let about_me = text::merge_nullable(me.about_me, &req.about_me, |v| {
+        text::text_trimmed("aboutMe", v, ABOUT_ME_MAX)
+    })?;
+
     hypercs_db::users::update_profile(
-        db,
+        &mut *tx,
         user_id,
         &display_name,
         location.as_deref(),
-        req.website.as_deref(),
+        website.as_deref(),
         about_me.as_deref(),
     )
-    .await
-    .map_err(|_| DomainError::Internal)
+    .await?;
+    tx.commit().await?;
+    Ok(())
 }
 
 pub async fn update_account(
     db: &PgPool,
     user_id: Uuid,
     req: &UpdateAccountRequest,
-) -> DomainResult<()> {
-    let email = normalize_text(&req.email, false).to_lowercase();
-    if hypercs_db::users::email_taken(db, &email)
-        .await
-        .map_err(|_| DomainError::Internal)?
-    {
-        // Allow keeping one's own email unchanged.
-        let current = hypercs_db::users::find_me(db, user_id)
-            .await
-            .map_err(|_| DomainError::Internal)?
-            .ok_or(DomainError::NotFound)?;
-        if current.email.to_lowercase() != email {
-            return Err(DomainError::validation(
-                "email",
-                "email_taken",
-                "This email address is already registered.",
-            ));
+) -> ApiResult<()> {
+    let mut tx = db.begin().await?;
+    let me = hypercs_db::users::find_me_for_update(&mut tx, user_id)
+        .await?
+        .ok_or_else(ApiError::unauthenticated)?;
+
+    let email = match &req.email {
+        Some(email) => {
+            let email = text::line("email", email, 3, EMAIL_MAX)?.to_lowercase();
+            if hypercs_db::users::email_taken_by_other(&mut *tx, &email, Some(user_id)).await? {
+                return Err(ApiError::validation(
+                    "email",
+                    "email_taken",
+                    "This email address is already registered.",
+                ));
+            }
+            email
         }
-    }
-    let first_name = req.first_name.as_deref().map(|s| normalize_text(s, false));
-    let last_name = req.last_name.as_deref().map(|s| normalize_text(s, false));
+        None => me.email,
+    };
+    let first_name = text::merge_nullable(me.first_name, &req.first_name, |v| {
+        text::line("firstName", v, 0, PERSON_NAME_MAX)
+    })?;
+    let last_name = text::merge_nullable(me.last_name, &req.last_name, |v| {
+        text::line("lastName", v, 0, PERSON_NAME_MAX)
+    })?;
+
     hypercs_db::users::update_account(
-        db,
+        &mut *tx,
         user_id,
         first_name.as_deref(),
         last_name.as_deref(),
         &email,
     )
-    .await
-    .map_err(|_| DomainError::Internal)
+    .await?;
+    tx.commit().await?;
+    Ok(())
 }
 
+/// Verifies the current password, stores the new hash and revokes every
+/// other session of the account (the current session stays signed in).
 pub async fn change_password(
     db: &PgPool,
-    user_id: Uuid,
-    current_session_id: Uuid,
+    user: &AuthUser,
     req: &ChangePasswordRequest,
-) -> DomainResult<()> {
-    let current_hash = hypercs_db::users::password_hash_by_id(db, user_id)
-        .await
-        .map_err(|_| DomainError::Internal)?
-        .ok_or(DomainError::NotFound)?;
-    if !crate::auth::crypto::verify_password(&req.current_password, &current_hash) {
-        return Err(DomainError::validation(
+) -> ApiResult<()> {
+    let mut tx = db.begin().await?;
+    let current_hash = hypercs_db::users::password_hash_for_update(&mut tx, user.id)
+        .await?
+        .ok_or_else(ApiError::unauthenticated)?;
+    if !crypto::verify_password_async(req.current_password.clone(), current_hash).await {
+        return Err(ApiError::validation(
             "currentPassword",
             "invalid_password",
-            "Current password is incorrect.",
+            "The current password is incorrect.",
         ));
     }
-    let new_hash =
-        crate::auth::crypto::hash_password(&req.new_password).ok_or(DomainError::Internal)?;
-    hypercs_db::users::update_password_hash(db, user_id, &new_hash)
+    let new_hash = crypto::hash_password_async(req.new_password.clone())
         .await
-        .map_err(|_| DomainError::Internal)?;
-    hypercs_db::sessions::delete_all_for_user_except(db, user_id, Some(current_session_id))
-        .await
-        .map_err(|_| DomainError::Internal)
+        .ok_or_else(ApiError::internal)?;
+    hypercs_db::users::update_password_hash(&mut *tx, user.id, &new_hash).await?;
+    hypercs_db::sessions::delete_all_for_user_except(&mut *tx, user.id, Some(user.session_id))
+        .await?;
+    tx.commit().await?;
+    Ok(())
 }
 
 pub async fn update_preferences(
     db: &PgPool,
     user_id: Uuid,
     req: &UpdatePreferencesRequest,
-) -> DomainResult<()> {
-    hypercs_db::users::update_preferences(
-        db,
-        user_id,
-        &req.language,
-        &req.timezone,
-        req.notify_on_reply,
-        req.notify_on_quote,
-        req.show_online,
-    )
-    .await
-    .map_err(|_| DomainError::Internal)
-}
-
-pub async fn list_sessions(
-    db: &PgPool,
-    user_id: Uuid,
-) -> DomainResult<Vec<hypercs_db::sessions::SessionListRow>> {
-    hypercs_db::sessions::list_for_user(db, user_id)
-        .await
-        .map_err(|_| DomainError::Internal)
-}
-
-pub async fn revoke_session(db: &PgPool, user_id: Uuid, session_id: Uuid) -> DomainResult<()> {
-    // Scope the delete to the caller's own sessions by checking membership first.
-    let sessions = list_sessions(db, user_id).await?;
-    if !sessions.iter().any(|s| s.id == session_id) {
-        return Err(DomainError::NotFound);
+) -> ApiResult<()> {
+    if let Some(language) = &req.language
+        && language != "en-US"
+        && language != "de"
+    {
+        return Err(ApiError::validation(
+            "language",
+            "invalid_language",
+            "Language must be 'en-US' or 'de'.",
+        ));
     }
-    hypercs_db::sessions::delete_by_id(db, session_id)
-        .await
-        .map_err(|_| DomainError::Internal)
+    if let Some(timezone) = &req.timezone
+        && !is_valid_timezone(timezone)
+    {
+        return Err(ApiError::validation(
+            "timezone",
+            "invalid_timezone",
+            "Unknown IANA time zone.",
+        ));
+    }
+
+    let mut tx = db.begin().await?;
+    let me = hypercs_db::users::find_me_for_update(&mut tx, user_id)
+        .await?
+        .ok_or_else(ApiError::unauthenticated)?;
+    hypercs_db::users::update_preferences(
+        &mut *tx,
+        user_id,
+        req.language.as_deref().unwrap_or(&me.language),
+        req.timezone.as_deref().unwrap_or(&me.timezone),
+        req.notify_on_reply.unwrap_or(me.notify_on_reply),
+        req.notify_on_quote.unwrap_or(me.notify_on_quote),
+        req.show_online.unwrap_or(me.show_online),
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(())
 }
 
-pub async fn public_profile(
-    db: &PgPool,
-    username: &str,
-) -> DomainResult<hypercs_db::users::PublicProfileRow> {
+pub async fn list_sessions(db: &PgPool, user: &AuthUser) -> ApiResult<Vec<SessionInfo>> {
+    let rows = hypercs_db::sessions::list_for_user(db, user.id).await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| SessionInfo {
+            current: row.id == user.session_id,
+            id: row.id,
+            user_agent: row.user_agent,
+            remember: row.remember,
+            created_at: row.created_at,
+            last_seen_at: row.last_seen_at,
+            expires_at: row.expires_at,
+        })
+        .collect())
+}
+
+/// Revokes one of the caller's own sessions (another user's session id is
+/// indistinguishable from an unknown one).
+pub async fn revoke_session(db: &PgPool, user_id: Uuid, session_id: Uuid) -> ApiResult<()> {
+    if hypercs_db::sessions::delete_owned(db, session_id, user_id).await? {
+        Ok(())
+    } else {
+        Err(ApiError::not_found())
+    }
+}
+
+pub async fn public_profile(db: &PgPool, username: &str) -> ApiResult<PublicProfile> {
     hypercs_db::users::find_public_profile(db, username)
-        .await
-        .map_err(|_| DomainError::Internal)?
-        .ok_or(DomainError::NotFound)
+        .await?
+        .map(view::public_profile)
+        .ok_or_else(ApiError::not_found)
 }
 
-pub async fn list_all_users(db: &PgPool) -> DomainResult<Vec<hypercs_db::users::AdminUserRow>> {
-    hypercs_db::users::list_all(db)
-        .await
-        .map_err(|_| DomainError::Internal)
+pub async fn list_users(
+    db: &PgPool,
+    actor: &Principal,
+    page: Option<u32>,
+    per_page: Option<u32>,
+) -> ApiResult<AdminUserPage> {
+    if !policy::can_manage_users(actor) {
+        return Err(ApiError::forbidden());
+    }
+    let params = PageParams::new(page, per_page, USERS_PER_PAGE);
+    let rows = hypercs_db::users::list_page(db, params.limit(), params.offset()).await?;
+    let total = hypercs_db::users::count_all(db).await?;
+    Ok(AdminUserPage::new(
+        rows.into_iter().map(view::admin_user).collect(),
+        params,
+        total,
+    ))
 }
 
-pub async fn update_role(db: &PgPool, user_id: Uuid, role_str: &str) -> DomainResult<()> {
-    let role = Role::from_db_str(role_str).ok_or_else(|| {
-        DomainError::validation(
-            "role",
-            "invalid_role",
-            "Role must be admin, moderator or member.",
-        )
-    })?;
-    hypercs_db::users::update_role(db, user_id, role)
-        .await
-        .map_err(|_| DomainError::Internal)
+/// Admin-only. Roles are read from the database on every request, so the
+/// change applies immediately (including to the target's open sessions). The
+/// last admin cannot be demoted.
+pub async fn update_role(
+    db: &PgPool,
+    actor: &Principal,
+    username: &str,
+    new_role: Role,
+) -> ApiResult<()> {
+    if !policy::can_manage_users(actor) {
+        return Err(ApiError::forbidden());
+    }
+    let mut tx = db.begin().await?;
+    let admins = hypercs_db::users::lock_admins(&mut tx).await?;
+    let (target_id, current) = hypercs_db::users::lock_by_username(&mut tx, username)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    let current = Role::from_db_or_member(&current);
+    if policy::would_remove_last_admin(current, new_role, admins.len() as i64) {
+        return Err(DomainError::Conflict { code: "last_admin" }.into());
+    }
+    hypercs_db::users::update_role(&mut *tx, target_id, new_role).await?;
+    tx.commit().await?;
+    Ok(())
 }

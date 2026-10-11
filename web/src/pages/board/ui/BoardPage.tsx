@@ -1,20 +1,53 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { useRelativeTime } from '@/shared/lib';
-import { Breadcrumbs, Pagination } from '@/shared/ui';
-import { board, topics } from '../model/placeholder';
+import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { useBoardPage } from '@/entities/board';
+import { useSession } from '@/entities/session';
+import { boardPath, newTopicPath, pageFromParam } from '@/shared/lib';
+import {
+    ApiErrorState,
+    Breadcrumbs,
+    EmptyState,
+    Loading,
+    Pagination,
+} from '@/shared/ui';
+import { TopicList } from '@/widgets/topic-list';
 
 export function BoardPage() {
     const { t } = useTranslation();
-    const ago = useRelativeTime();
-    const when = (days: number) => (days === 0 ? ago(3, 'hour') : ago(days));
+    const { boardId = '' } = useParams();
+    const [searchParams] = useSearchParams();
+    const page = pageFromParam(searchParams.get('page'));
+    const { status } = useSession();
+    const query = useBoardPage(boardId, page);
+
+    if (query.isPending) return <Loading />;
+    if (query.isError) {
+        return (
+            <ApiErrorState
+                error={query.error}
+                onRetry={() => void query.refetch()}
+            />
+        );
+    }
+
+    const { board, topics } = query.data;
+    // E.g. the last topic of the last page was deleted: go to the new last page.
+    if (topics.items.length === 0 && page > 1 && topics.totalPages > 0) {
+        return <Navigate to={boardPath(board.id, topics.totalPages)} replace />;
+    }
+    const canCreate = status === 'authenticated';
+    const newTopicLink = (
+        <Link className="btn" to={newTopicPath(board.id)}>
+            {t('forum.newTopic')}
+        </Link>
+    );
 
     return (
         <>
             <Breadcrumbs
                 items={[
                     { label: t('forum.boardIndex'), to: '/forum' },
-                    { label: board.category },
+                    { label: board.categoryName },
                     { label: board.name },
                 ]}
             />
@@ -22,54 +55,26 @@ export function BoardPage() {
             <div className="title-row">
                 <div>
                     <h2 className="page-title">{board.name}</h2>
-                    <p>{board.description}</p>
+                    {board.description && <p>{board.description}</p>}
                 </div>
-                <a className="btn" href="#">
-                    {t('forum.newTopic')}
-                </a>
+                {canCreate && newTopicLink}
             </div>
 
-            <div className="topics">
-                <div className="topics-head">
-                    <div>{t('forum.columns.topic')}</div>
-                    <div>{t('forum.columns.replies')}</div>
-                    <div>{t('forum.columns.views')}</div>
-                    <div>{t('forum.columns.lastPost')}</div>
-                </div>
-                {topics.map((topic) => (
-                    <div className="topic" key={topic.title}>
-                        <div>
-                            {topic.pinned && (
-                                <span className="tag">{t('forum.pinned')}</span>
-                            )}
-                            {topic.locked && (
-                                <span className="tag locked">
-                                    {t('forum.locked')}
-                                </span>
-                            )}
-                            <Link
-                                className="title"
-                                to={`/forum/topics/${topic.id}`}
-                            >
-                                {topic.title}
-                            </Link>
-                            <div className="meta">
-                                {t('forum.by')} <a href="#">{topic.starter}</a>{' '}
-                                &middot; {when(topic.startedDays)}
-                            </div>
-                        </div>
-                        <div className="num">{topic.replies}</div>
-                        <div className="num">{topic.views}</div>
-                        <div className="last-post">
-                            {t('forum.by')} <a href="#">{topic.lastPoster}</a>
-                            <br />
-                            {when(topic.lastDays)}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <Pagination current={1} total={3} />
+            {topics.items.length === 0 ? (
+                <EmptyState
+                    title={t('forum.empty.topicsTitle')}
+                    text={t('forum.empty.topicsText')}
+                    action={canCreate ? newTopicLink : undefined}
+                />
+            ) : (
+                <>
+                    <TopicList topics={topics.items} />
+                    <Pagination
+                        current={topics.page}
+                        total={topics.totalPages}
+                    />
+                </>
+            )}
         </>
     );
 }

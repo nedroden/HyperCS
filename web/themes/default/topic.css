@@ -7,10 +7,10 @@
     border-bottom: 1px solid var(--color-border);
 }
 .post-author {
-    background: #f7f7f7;
+    background: var(--color-bg-subtle);
     padding: 18px 15px;
     font-size: 13px;
-    color: #666;
+    color: var(--color-text-soft);
     line-height: 20px;
 }
 .post-author .avatar {
@@ -28,7 +28,7 @@
     padding: 1px 6px;
     border-radius: 3px;
     background: var(--color-primary);
-    color: #fff;
+    color: var(--color-on-primary);
     margin: 2px 0 6px;
 }
 .post-body {
@@ -40,15 +40,15 @@
     display: flex;
     justify-content: space-between;
     font-size: 13px;
-    color: #777;
+    color: var(--color-text-muted);
     padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border-subtle);
     margin-bottom: 14px;
 }
 .post-content {
     font-size: 15px;
     line-height: 24px;
-    color: #333;
+    color: var(--color-text-strong);
     flex: 1;
 }
 .post-content p {
@@ -72,7 +72,7 @@
     margin: 0 0 10px;
     font-size: 20px;
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-strong);
 }
 .reply textarea {
     height: 120px;
@@ -86,4 +86,31 @@
     .post {
         grid-template-columns: 1fr;
     }
+}
+
+.post-edited {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+.post-actions .link-button,
+.post-actions a {
+    margin-left: 14px;
+    font-size: 13px;
+    color: var(--color-link);
+}
+.post-actions .link-button:hover {
+    text-decoration: underline;
+}
+.reply-subject {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+.reply-notice {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+.post-author .avatar {
+    margin-bottom: 10px;
 }

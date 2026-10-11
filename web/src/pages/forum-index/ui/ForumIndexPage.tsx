@@ -1,105 +1,110 @@
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useRelativeTime } from '@/shared/lib';
-import { Avatar } from '@/shared/ui';
-import { categories, stats } from '../model/placeholder';
+import { CategorySection, useCategories } from '@/entities/category';
+import { useSession } from '@/entities/session';
+import { topicPath, userPath } from '@/shared/lib';
+import { ApiErrorState, EmptyState, Loading, RelativeTime } from '@/shared/ui';
+import { useStats, type Stats } from '@/entities/stat';
+
+const TOTALS = ['topics', 'posts', 'members', 'boards'] as const;
+
+function StatsSection({ stats }: { stats: Stats }) {
+    const { t } = useTranslation();
+    return (
+        <section
+            className="category stats-section"
+            aria-labelledby="forum-stats"
+        >
+            <div className="category-head">
+                <h3 id="forum-stats">{t('forum.stats.title')}</h3>
+                <p>{t('forum.stats.intro')}</p>
+            </div>
+            <div className="stats-grid">
+                {TOTALS.map((key) => (
+                    <div className="stat" key={key}>
+                        <div className="value">{stats[key]}</div>
+                        <div className="label">{t(`forum.stats.${key}`)}</div>
+                    </div>
+                ))}
+            </div>
+            <div className="stats-extra">
+                {stats.newestMember && (
+                    <div>
+                        {t('forum.stats.newestMember')}{' '}
+                        <Link to={userPath(stats.newestMember.username)}>
+                            {stats.newestMember.displayName}
+                        </Link>
+                    </div>
+                )}
+                {stats.latestPost && (
+                    <div>
+                        {t('forum.stats.latestPost')}{' '}
+                        <Link to={topicPath(stats.latestPost.topicId)}>
+                            {stats.latestPost.topicTitle}
+                        </Link>{' '}
+                        {t('forum.by')}{' '}
+                        <Link to={userPath(stats.latestPost.author.username)}>
+                            {stats.latestPost.author.displayName}
+                        </Link>
+                        , <RelativeTime date={stats.latestPost.createdAt} />
+                    </div>
+                )}
+                <div>
+                    {t('forum.stats.usersOnline', {
+                        count: stats.onlineCount,
+                    })}{' '}
+                    {stats.onlineUsers.map((user) => (
+                        <Link key={user.id} to={userPath(user.username)}>
+                            {user.displayName}
+                        </Link>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
 
 export function ForumIndexPage() {
     const { t } = useTranslation();
-    const ago = useRelativeTime();
+    const { status } = useSession();
+    const categories = useCategories();
+    const stats = useStats();
+
     return (
         <>
             <h2 className="page-title">{t('forum.boardIndex')}</h2>
 
-            {categories.map((category) => (
-                <section className="category" key={category.id}>
-                    <div className="category-head">
-                        <h3>{category.name}</h3>
-                        <p>{category.description}</p>
-                    </div>
-                    {category.boards.map((board) => (
-                        <div className="board" key={board.id}>
-                            <div>
-                                <Link
-                                    className="name"
-                                    to={`/forum/boards/${board.id}`}
-                                >
-                                    {board.name}
-                                </Link>
-                                <div className="desc">{board.description}</div>
-                            </div>
-                            <div className="stats">
-                                {t('forum.topics', { count: board.topics })}
-                                <small>
-                                    {t('forum.posts', { count: board.posts })}
-                                </small>
-                            </div>
-                            <div className="last">
-                                {board.lastPost && (
-                                    <>
-                                        <Avatar
-                                            name={board.lastPost.author}
-                                            size="md"
-                                            shape="round"
-                                        />
-                                        <div>
-                                            <Link
-                                                to={`/forum/topics/${board.lastPost.topicId}`}
-                                            >
-                                                {board.lastPost.title}
-                                            </Link>
-                                            <br />
-                                            {t('forum.by')}{' '}
-                                            <a href="#">
-                                                {board.lastPost.author}
-                                            </a>
-                                            <br />
-                                            {ago(board.lastPost.days)}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </section>
-            ))}
+            {status === 'guest' && (
+                <p className="guest-banner">
+                    <Trans
+                        i18nKey="forum.guestBanner"
+                        components={{
+                            login: <Link to="/login" />,
+                            register: <Link to="/register" />,
+                        }}
+                    />
+                </p>
+            )}
 
-            <section className="category stats-section">
-                <div className="category-head">
-                    <h3>{t('forum.stats.title')}</h3>
-                    <p>{t('forum.stats.intro')}</p>
-                </div>
-                <div className="stats-grid">
-                    {(['topics', 'posts', 'members', 'boards'] as const).map(
-                        (key) => (
-                            <div className="stat" key={key}>
-                                <div className="value">{stats[key]}</div>
-                                <div className="label">
-                                    {t(`forum.stats.${key}`)}
-                                </div>
-                            </div>
-                        ),
-                    )}
-                </div>
-                <div className="stats-extra">
-                    {t('forum.stats.newestMember')}{' '}
-                    <a href="#">{stats.newestMember}</a>
-                    <br />
-                    {t('forum.stats.latestPost')}{' '}
-                    <Link to="/forum/topics/1">Lorem ipsum dolor sit amet</Link>{' '}
-                    {t('forum.by')} <a href="#">{stats.newestMember}</a>,{' '}
-                    {ago(7)}
-                    <br />
-                    {t('forum.stats.usersOnline', {
-                        count: stats.usersOnline.length,
-                    })}{' '}
-                    {stats.usersOnline.map((u) => (
-                        <a href="#" key={u}>
-                            {u}
-                        </a>
-                    ))}
-                </div>
-            </section>
+            {categories.isPending ? (
+                <Loading />
+            ) : categories.isError ? (
+                <ApiErrorState
+                    error={categories.error}
+                    onRetry={() => void categories.refetch()}
+                />
+            ) : categories.data.categories.length === 0 ? (
+                <EmptyState
+                    title={t('forum.empty.categoriesTitle')}
+                    text={t('forum.empty.categoriesText')}
+                />
+            ) : (
+                categories.data.categories.map((category) => (
+                    <CategorySection key={category.id} category={category} />
+                ))
+            )}
+
+            {stats.data && <StatsSection stats={stats.data} />}
         </>
     );
 }

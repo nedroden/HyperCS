@@ -1,16 +1,15 @@
-import type { FormEvent } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useSession } from '@/entities/session';
+import { SignUpForm } from '@/features/sign-up';
 import { FormBox } from '@/shared/ui';
 
 export function RegisterPage() {
     const { t } = useTranslation();
+    const { status } = useSession();
     const navigate = useNavigate();
 
-    function onSubmit(e: FormEvent) {
-        e.preventDefault();
-        navigate('/login'); // placeholder until the API has registration
-    }
+    if (status === 'authenticated') return <Navigate to="/" replace />;
 
     return (
         <FormBox
@@ -24,55 +23,12 @@ export function RegisterPage() {
                 </>
             }
         >
-            <form onSubmit={onSubmit}>
-                <label htmlFor="username">{t('auth.username')}</label>
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    autoComplete="username"
-                />
-
-                <label htmlFor="email">{t('auth.email')}</label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    autoComplete="email"
-                />
-
-                <label htmlFor="password">{t('auth.password')}</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    autoComplete="new-password"
-                />
-
-                <label htmlFor="password2">{t('auth.confirmPassword')}</label>
-                <input
-                    type="password"
-                    id="password2"
-                    name="password2"
-                    autoComplete="new-password"
-                />
-
-                <div className="form-row">
-                    <span>
-                        <input type="checkbox" id="terms" name="terms" />{' '}
-                        <label htmlFor="terms" className="inline">
-                            <Trans
-                                i18nKey="auth.register.terms"
-                                components={{ link: <a href="#" /> }}
-                            />
-                        </label>
-                    </span>
-                </div>
-
-                <button className="btn btn-block" type="submit">
-                    {t('auth.register.submit')}
-                </button>
-            </form>
+            <SignUpForm
+                onSuccess={({ signedIn }) => {
+                    // Signed in: this page redirects home by itself. Otherwise ask the user to log in.
+                    if (!signedIn) navigate('/login');
+                }}
+            />
         </FormBox>
     );
 }

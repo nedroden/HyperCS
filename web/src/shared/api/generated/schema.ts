@@ -13,6 +13,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Log in with username and password. Sets the HTTP-only `hypercs_session`
+         *     cookie (any previous session cookie is revoked: the session is rotated).
+         *     Read the CSRF token from `GET /me` afterwards.
+         */
         post: operations["login"];
         delete?: never;
         options?: never;
@@ -29,6 +34,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Log out: deletes the current session. */
         post: operations["logout"];
         delete?: never;
         options?: never;
@@ -45,6 +51,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Create a member account. Does not log the user in. */
         post: operations["register"];
         delete?: never;
         options?: never;
@@ -61,6 +68,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Admin: create a board in a category (appended at the end). */
         post: operations["create_board"];
         delete?: never;
         options?: never;
@@ -75,12 +83,18 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["board_detail"];
+        /**
+         * A board with one page of its topics (pinned first, then latest activity).
+         *     Admin-only boards are `404` for everyone but admins.
+         */
+        get: operations["board_page"];
         put?: never;
         post?: never;
+        /** Admin: hard-delete a board with its topics and posts. */
         delete: operations["delete_board"];
         options?: never;
         head?: never;
+        /** Admin: partially update a board. */
         patch: operations["update_board"];
         trace?: never;
     };
@@ -93,6 +107,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Admin: move a board one position up or down within its category. */
         post: operations["reorder_board"];
         delete?: never;
         options?: never;
@@ -109,6 +124,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Create a topic (title + first post) in a board. */
         post: operations["create_topic"];
         delete?: never;
         options?: never;
@@ -123,8 +139,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * The board index: categories with their boards, counters and last posts.
+         *     Admin-only categories/boards are included for admins only.
+         */
         get: operations["board_index"];
         put?: never;
+        /** Admin: create a category (appended at the end). */
         post: operations["create_category"];
         delete?: never;
         options?: never;
@@ -142,9 +163,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** Admin: hard-delete a category with all its boards, topics and posts. */
         delete: operations["delete_category"];
         options?: never;
         head?: never;
+        /** Admin: partially update a category. */
         patch: operations["update_category"];
         trace?: never;
     };
@@ -157,6 +180,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Admin: move a category one position up or down (a no-op at the edge). */
         post: operations["reorder_category"];
         delete?: never;
         options?: never;
@@ -171,8 +195,28 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Homepage hero and feature blocks. */
         get: operations["get_homepage"];
+        /** Admin: replace the homepage blocks. */
         put: operations["put_homepage"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cms/site": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Site title, slogan and default language. */
+        get: operations["get_site_settings"];
+        /** Admin: replace the site settings. */
+        put: operations["put_site_settings"];
         post?: never;
         delete?: never;
         options?: never;
@@ -187,7 +231,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Terms of service text. */
         get: operations["get_terms"];
+        /** Admin: replace the terms of service text (body limit 128 KB). */
         put: operations["put_terms"];
         post?: never;
         delete?: never;
@@ -203,6 +249,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Liveness probe. */
         get: operations["health"];
         put?: never;
         post?: never;
@@ -219,6 +266,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** The logged-in account, including the CSRF token for this session. */
         get: operations["me"];
         put?: never;
         post?: never;
@@ -241,6 +289,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** Partially update the private account data (name, email). */
         patch: operations["update_account"];
         trace?: never;
     };
@@ -257,6 +306,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** Change the password. All other sessions of the account are revoked. */
         patch: operations["change_password"];
         trace?: never;
     };
@@ -273,6 +323,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** Partially update preferences (language, time zone, notifications, privacy). */
         patch: operations["update_preferences"];
         trace?: never;
     };
@@ -289,6 +340,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** Partially update the public profile (absent = unchanged, `null` = clear). */
         patch: operations["update_profile"];
         trace?: never;
     };
@@ -299,6 +351,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * The account's active sessions (not paginated: bounded by the number of
+         *     devices a person signs in from).
+         */
         get: operations["list_sessions"];
         put?: never;
         post?: never;
@@ -318,6 +374,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** Revoke one of the caller's own sessions. */
         delete: operations["revoke_session"];
         options?: never;
         head?: never;
@@ -331,8 +388,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** News items, newest first. */
         get: operations["list_news"];
         put?: never;
+        /** Admin: publish a news item. */
         post: operations["create_news"];
         delete?: never;
         options?: never;
@@ -340,36 +399,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/news/by-id/{id}": {
+    "/api/v1/news/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["delete_news"];
-        options?: never;
-        head?: never;
-        patch: operations["update_news"];
-        trace?: never;
-    };
-    "/api/v1/news/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
+        /** One news item, addressed by id (the slug is cosmetic). */
         get: operations["get_news"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Admin: delete a news item. */
+        delete: operations["delete_news"];
         options?: never;
         head?: never;
-        patch?: never;
+        /** Admin: partially update a news item. */
+        patch: operations["update_news"];
         trace?: never;
     };
     "/api/v1/posts/{id}": {
@@ -379,12 +425,21 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** A single post with its topic, board and category context. */
+        get: operations["get_post"];
         put?: never;
         post?: never;
+        /**
+         * Delete a post (author, moderator or admin). Deleting a topic's first post
+         *     deletes the whole topic.
+         */
         delete: operations["delete_post"];
         options?: never;
         head?: never;
+        /**
+         * Edit a post (author, moderator or admin). The previous body is kept as a
+         *     revision; an unchanged body is a no-op.
+         */
         patch: operations["update_post"];
         trace?: never;
     };
@@ -395,6 +450,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** A post's edit history, newest first (author, moderator or admin). */
         get: operations["list_revisions"];
         put?: never;
         post?: never;
@@ -413,6 +469,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Restore an old version: a normal edit that writes the revision's body back
+         *     and records the current body as a new revision (history is never
+         *     rewritten).
+         */
         post: operations["restore_revision"];
         delete?: never;
         options?: never;
@@ -427,6 +488,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Board-index statistics: totals, newest member, latest post, users online. */
         get: operations["get_stats"];
         put?: never;
         post?: never;
@@ -443,29 +505,19 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** A topic with one page of posts. Every request counts as a view. */
         get: operations["get_topic"];
         put?: never;
         post?: never;
+        /** Moderator/admin: hard-delete a topic with all its posts. */
         delete: operations["delete_topic"];
         options?: never;
         head?: never;
-        patch: operations["moderate_topic"];
-        trace?: never;
-    };
-    "/api/v1/topics/{id}/move": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["move_topic"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
+        /**
+         * Moderator/admin: pin/unpin, lock/unlock and/or move the topic to another
+         *     board (`boardId`), all in one transaction.
+         */
+        patch: operations["update_topic"];
         trace?: never;
     };
     "/api/v1/topics/{id}/posts": {
@@ -477,6 +529,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Reply to a topic. Locked topics accept replies from moderators and admins
+         *     only.
+         */
         post: operations["create_reply"];
         delete?: never;
         options?: never;
@@ -491,6 +547,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Admin: all accounts, oldest first. */
         get: operations["list_users"];
         put?: never;
         post?: never;
@@ -500,7 +557,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/users/by-id/{id}/role": {
+    "/api/v1/users/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A member's public profile (looked up by case-insensitive username). */
+        get: operations["public_profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{username}/role": {
         parameters: {
             query?: never;
             header?: never;
@@ -513,40 +587,53 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /**
+         * Admin: assign a role. Applies immediately (roles are read from the
+         *     database on every request). The last admin cannot be demoted.
+         */
         patch: operations["update_role"];
-        trace?: never;
-    };
-    "/api/v1/users/{username}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["public_profile"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        AdminUserRow: {
+        /** @description A row of the admin user list. */
+        AdminUser: {
             /** Format: date-time */
             createdAt: string;
             displayName: string;
             email: string;
             /** Format: uuid */
             id: string;
-            role: string;
+            /** Format: int32 */
+            postCount: number;
+            role: components["schemas"]["Role"];
             username: string;
         };
-        BoardDetailRow: {
+        /** @description A page of the admin user list. */
+        AdminUserPage: {
+            items: components["schemas"]["AdminUser"][];
+            /**
+             * Format: int32
+             * @description 1-based page number.
+             */
+            page: number;
+            /**
+             * Format: int32
+             * @description Page size actually applied.
+             */
+            perPage: number;
+            /**
+             * Format: int64
+             * @description Total number of items over all pages.
+             */
+            total: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        BoardDetail: {
+            /** @description Effective flag (the board's own OR its category's). */
             adminOnly: boolean;
             /** Format: uuid */
             categoryId: string;
@@ -560,26 +647,30 @@ export interface components {
             /** Format: int32 */
             topicCount: number;
         };
-        BoardIndexItem: components["schemas"]["BoardRow"] & {
-            lastPost?: null | components["schemas"]["LastPostRow"];
-        };
+        /** @description The board index. Admin-only categories/boards are only included for admins. */
         BoardIndexResponse: {
-            categories: components["schemas"]["CategoryIndexItem"][];
+            categories: components["schemas"]["CategoryWithBoards"][];
+        };
+        BoardPageResponse: {
+            board: components["schemas"]["BoardDetail"];
+            topics: components["schemas"]["TopicSummaryPage"];
         };
         BoardRequest: {
             adminOnly?: boolean;
             /** Format: uuid */
             categoryId: string;
-            description: string;
+            description?: string;
             name: string;
         };
-        BoardRow: {
+        /** @description A board as listed on the board index. */
+        BoardSummary: {
             adminOnly: boolean;
             /** Format: uuid */
             categoryId: string;
             description: string;
             /** Format: uuid */
             id: string;
+            lastPost?: null | components["schemas"]["LastPostSummary"];
             name: string;
             /** Format: int32 */
             position: number;
@@ -588,16 +679,15 @@ export interface components {
             /** Format: int32 */
             topicCount: number;
         };
-        CategoryIndexItem: components["schemas"]["CategoryRow"] & {
-            boards: components["schemas"]["BoardIndexItem"][];
-        };
         CategoryRequest: {
+            /** @description Invisible and inaccessible to everyone but admins. */
             adminOnly?: boolean;
-            description: string;
+            description?: string;
             name: string;
         };
-        CategoryRow: {
+        CategoryWithBoards: {
             adminOnly: boolean;
+            boards: components["schemas"]["BoardSummary"][];
             description: string;
             /** Format: uuid */
             id: string;
@@ -606,38 +696,75 @@ export interface components {
             position: number;
         };
         ChangePasswordRequest: {
+            /** Format: password */
             currentPassword: string;
+            /** Format: password */
             newPassword: string;
         };
-        CreatePostRequest: {
-            body: string;
-        };
-        CreateTopicRequest: {
+        CreateNewsRequest: {
             body: string;
             title: string;
         };
+        CreatePostRequest: {
+            /** @description Markdown. */
+            body: string;
+        };
+        CreateTopicRequest: {
+            /** @description First post, Markdown. */
+            body: string;
+            title: string;
+        };
+        /** @description Body of a `201 Created` response; the same URL is in the `Location` header. */
+        CreatedResponse: {
+            /** Format: uuid */
+            id: string;
+        };
         /** @enum {string} */
         Direction: "up" | "down";
+        /** @description One field-level problem inside a `422 validation_failed` response. */
+        FieldProblem: {
+            /**
+             * @description Stable, machine-readable code (`length`, `email`, `url`,
+             *     `username_taken`, `email_taken`, `invalid_characters`, ...).
+             * @example username_taken
+             */
+            code: string;
+            /**
+             * @description JSON path of the offending field, camelCase (e.g. `username`,
+             *     `features[1].title`; `body` for a malformed request body).
+             * @example username
+             */
+            field: string;
+            /** @description English developer-facing message; the front-end translates by `code`. */
+            message: string;
+        };
         Health: {
+            /**
+             * @description `up` or `down`.
+             * @example up
+             */
             database: string;
+            /**
+             * @description Always `ok` while the process is alive.
+             * @example ok
+             */
             status: string;
             version: string;
         };
+        /** @description Editable homepage blocks (the "Latest news" list comes from `/news`). */
         HomepageContent: {
+            /** @description Exactly three feature blocks. */
             features: components["schemas"]["HomepageFeature"][];
             heroButtonLabel: string;
             heroHeading: string;
-            heroIntro: string;
         };
         HomepageFeature: {
             text: string;
             title: string;
         };
-        LastPostRow: {
-            authorDisplayName: string;
-            /** Format: uuid */
-            authorId: string;
-            authorUsername: string;
+        /** @description The newest post of a board or the whole forum. */
+        LastPostSummary: {
+            author: components["schemas"]["UserSummary"];
             /** Format: date-time */
             createdAt: string;
             /** Format: uuid */
@@ -647,10 +774,19 @@ export interface components {
             topicTitle: string;
         };
         LoginRequest: {
+            /** Format: password */
             password: string;
+            /**
+             * @description "Remember me": 30-day persistent session instead of a browser-session
+             *     cookie with 24 h idle expiry.
+             */
             remember?: boolean;
             username: string;
         };
+        /**
+         * @description The logged-in account, including the per-session CSRF token to send as
+         *     `X-CSRF-Token` on every unsafe request.
+         */
         MeResponse: {
             aboutMe?: string | null;
             /** Format: date-time */
@@ -661,6 +797,7 @@ export interface components {
             firstName?: string | null;
             /** Format: uuid */
             id: string;
+            /** @description `en-US` or `de`. */
             language: string;
             lastName?: string | null;
             location?: string | null;
@@ -668,86 +805,188 @@ export interface components {
             notifyOnReply: boolean;
             /** Format: int32 */
             postCount: number;
-            role: string;
+            role: components["schemas"]["Role"];
             showOnline: boolean;
+            /** @description IANA time zone name. */
             timezone: string;
             username: string;
             website?: string | null;
         };
-        MeRow: {
-            aboutMe?: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            displayName: string;
-            email: string;
-            firstName?: string | null;
-            /** Format: uuid */
-            id: string;
-            language: string;
-            lastName?: string | null;
-            location?: string | null;
-            notifyOnQuote: boolean;
-            notifyOnReply: boolean;
-            /** Format: int32 */
-            postCount: number;
-            role: string;
-            showOnline: boolean;
-            timezone: string;
-            username: string;
-            website?: string | null;
-        };
-        ModerateTopicRequest: {
-            locked?: boolean | null;
-            pinned?: boolean | null;
-        };
-        MoveTopicRequest: {
-            /** Format: uuid */
-            boardId: string;
-        };
-        NewsItemRow: {
-            authorDisplayName?: string | null;
+        NewsItem: {
+            author?: null | components["schemas"]["UserSummary"];
             body: string;
             /** Format: uuid */
             id: string;
             /** Format: date-time */
             publishedAt: string;
+            /** @description Cosmetic URL slug derived from the title; the `id` is authoritative. */
             slug: string;
             title: string;
         };
-        NewsRequest: {
-            body: string;
-            title: string;
-        };
-        PostRevisionRow: {
-            body: string;
-            /** Format: date-time */
-            createdAt: string;
-            editedByDisplayName?: string | null;
-            /** Format: uuid */
-            id: string;
-        };
-        PostRow: {
-            authorDisplayName: string;
-            /** Format: uuid */
-            authorId: string;
-            /** Format: date-time */
-            authorJoinedAt: string;
+        /** @description A page of news items, newest first. */
+        NewsItemPage: {
+            items: components["schemas"]["NewsItem"][];
+            /**
+             * Format: int32
+             * @description 1-based page number.
+             */
+            page: number;
+            /**
+             * Format: int32
+             * @description Page size actually applied.
+             */
+            perPage: number;
+            /**
+             * Format: int64
+             * @description Total number of items over all pages.
+             */
+            total: number;
             /** Format: int32 */
-            authorPostCount: number;
-            authorRole: string;
-            authorUsername: string;
+            totalPages: number;
+        };
+        Post: {
+            author: components["schemas"]["PostAuthor"];
+            /** @description Raw Markdown as submitted; render it sanitized. */
             body: string;
             /** Format: date-time */
             createdAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Set when the post was edited; the UI shows an "edited" marker.
+             */
             editedAt?: string | null;
-            editedByDisplayName?: string | null;
+            editedBy?: null | components["schemas"]["UserSummary"];
             /** Format: uuid */
             id: string;
+            /**
+             * Format: int64
+             * @description 1-based position within the topic (the post "number" / permalink).
+             */
+            number: number;
             /** Format: uuid */
             topicId: string;
         };
-        PublicProfileRow: {
+        /** @description A post's author with the data shown in the author panel. */
+        PostAuthor: {
+            displayName: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            joinedAt: string;
+            /** Format: int32 */
+            postCount: number;
+            role: components["schemas"]["Role"];
+            username: string;
+        };
+        /** @description A single post with the context needed to render its edit/history screens. */
+        PostDetail: {
+            context: components["schemas"]["PostTopicContext"];
+            post: components["schemas"]["Post"];
+        };
+        /** @description A page of posts in topic order. */
+        PostPage: {
+            items: components["schemas"]["Post"][];
+            /**
+             * Format: int32
+             * @description 1-based page number.
+             */
+            page: number;
+            /**
+             * Format: int32
+             * @description Page size actually applied.
+             */
+            perPage: number;
+            /**
+             * Format: int64
+             * @description Total number of items over all pages.
+             */
+            total: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        /** @description The body of a post as it was before an edit. */
+        PostRevision: {
+            body: string;
+            /**
+             * Format: date-time
+             * @description When this version was replaced.
+             */
+            createdAt: string;
+            editedBy?: null | components["schemas"]["UserSummary"];
+            /** Format: uuid */
+            id: string;
+        };
+        /** @description A page of a post's edit history, newest first. */
+        PostRevisionPage: {
+            items: components["schemas"]["PostRevision"][];
+            /**
+             * Format: int32
+             * @description 1-based page number.
+             */
+            page: number;
+            /**
+             * Format: int32
+             * @description Page size actually applied.
+             */
+            perPage: number;
+            /**
+             * Format: int64
+             * @description Total number of items over all pages.
+             */
+            total: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        /** @description Topic, board and category context of a single post. */
+        PostTopicContext: {
+            /** Format: uuid */
+            boardId: string;
+            boardName: string;
+            /** Format: uuid */
+            categoryId: string;
+            categoryName: string;
+            /** @description Deleting the first post deletes the whole topic. */
+            isFirstPost: boolean;
+            /**
+             * Format: int32
+             * @description 1-based page of the topic the post is on, at the default page size.
+             */
+            page: number;
+            /** Format: uuid */
+            topicId: string;
+            topicLocked: boolean;
+            topicSlug: string;
+            topicTitle: string;
+        };
+        /**
+         * @description RFC 9457 problem details. Every error response of the API has this shape
+         *     and the `application/problem+json` content type.
+         */
+        ProblemDetails: {
+            /**
+             * @description Stable, machine-readable error code (e.g. `validation_failed`,
+             *     `not_found`, `forbidden`, `invalid_credentials`, `posting_too_fast`).
+             * @example validation_failed
+             */
+            code: string;
+            detail: string;
+            /** @description Field-level errors; present for validation failures. */
+            errors?: components["schemas"]["FieldProblem"][] | null;
+            /**
+             * Format: int32
+             * @example 422
+             */
+            status: number;
+            /** @example Validation failed */
+            title: string;
+            /**
+             * @description Always `about:blank`; the stable identifier is `code`.
+             * @example about:blank
+             */
+            type: string;
+        };
+        /** @description What other members may see of an account. */
+        PublicProfile: {
             aboutMe?: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -757,49 +996,93 @@ export interface components {
             location?: string | null;
             /** Format: int32 */
             postCount: number;
-            role: string;
+            role: components["schemas"]["Role"];
             username: string;
             website?: string | null;
         };
         RegisterRequest: {
+            /** @description Must be `true` (terms of service accepted). */
             acceptTerms: boolean;
+            /**
+             * Format: email
+             * @example alice@example.com
+             */
             email: string;
+            /** Format: password */
             password: string;
+            /**
+             * @description Login name and profile URL slug; letters, digits, `_` and `-`;
+             *     case-insensitively unique; cannot be changed later.
+             * @example alice
+             */
             username: string;
         };
-        ReorderDirection: {
+        /** @description Moves a category/board one position up or down among its siblings. */
+        ReorderRequest: {
             direction: components["schemas"]["Direction"];
         };
-        SessionListRow: {
+        /**
+         * @description Account role. Serialized lowercase: `admin`, `moderator`, `member`.
+         * @enum {string}
+         */
+        Role: "admin" | "moderator" | "member";
+        /** @description One signed-in device/browser. */
+        SessionInfo: {
             /** Format: date-time */
             createdAt: string;
+            /** @description True for the session making this request ("this device"). */
+            current: boolean;
+            /** Format: date-time */
+            expiresAt: string;
             /** Format: uuid */
             id: string;
             /** Format: date-time */
             lastSeenAt: string;
+            remember: boolean;
+            /** @description Raw `User-Agent` (truncated) as a device hint; no IP address is stored. */
             userAgent?: string | null;
         };
+        /** @description Site-wide settings. Public: the title and slogan are shown to every visitor. */
+        SiteSettings: {
+            /**
+             * @description Interface language for visitors and new accounts: `en-US` or `de`.
+             * @example en-US
+             */
+            defaultLanguage: string;
+            siteTitle: string;
+            /** @description Short tagline shown on the homepage. */
+            slogan: string;
+        };
+        /**
+         * @description Board-index statistics. `latestPost` only considers boards visible to
+         *     everyone; `onlineUsers` only lists users who opted in to being shown.
+         */
         Stats: {
             /** Format: int64 */
             boards: number;
+            latestPost?: null | components["schemas"]["LastPostSummary"];
             /** Format: int64 */
             members: number;
-            newestMember?: string | null;
-            /** Format: int64 */
+            newestMember?: null | components["schemas"]["UserSummary"];
+            /**
+             * Format: int64
+             * @description Users with an authenticated request in the last 5 minutes (those who
+             *     opted out of the list are not counted).
+             */
             onlineCount: number;
+            /** @description Up to 50 of the online users, by name. */
+            onlineUsers: components["schemas"]["UserSummary"][];
             /** Format: int64 */
             posts: number;
             /** Format: int64 */
             topics: number;
         };
+        /** @description Terms-of-service text (plain text / Markdown). */
         TermsContent: {
             body: string;
         };
-        TopicDetailRow: {
-            authorDisplayName: string;
-            /** Format: uuid */
-            authorId: string;
-            authorUsername: string;
+        TopicDetail: {
+            author: components["schemas"]["UserSummary"];
             /** Format: uuid */
             boardId: string;
             boardName: string;
@@ -808,6 +1091,11 @@ export interface components {
             categoryName: string;
             /** Format: date-time */
             createdAt: string;
+            /**
+             * Format: uuid
+             * @description Deleting this post deletes the whole topic.
+             */
+            firstPostId: string;
             /** Format: uuid */
             id: string;
             locked: boolean;
@@ -819,55 +1107,136 @@ export interface components {
             /** Format: int32 */
             viewCount: number;
         };
-        TopicListItemRow: {
-            authorDisplayName: string;
+        /** @description Last activity of a topic. */
+        TopicLastPost: {
+            author: components["schemas"]["UserSummary"];
+            /** Format: date-time */
+            createdAt: string;
             /** Format: uuid */
-            authorId: string;
-            authorUsername: string;
+            postId: string;
+        };
+        TopicPageResponse: {
+            posts: components["schemas"]["PostPage"];
+            topic: components["schemas"]["TopicDetail"];
+        };
+        /** @description A topic row in a board's topic list. */
+        TopicSummary: {
+            author: components["schemas"]["UserSummary"];
             /** Format: date-time */
             createdAt: string;
             /** Format: uuid */
             id: string;
-            /** Format: date-time */
-            lastPostAt?: string | null;
-            lastPostAuthorDisplayName?: string | null;
-            /** Format: uuid */
-            lastPostAuthorId?: string | null;
-            lastPostAuthorUsername?: string | null;
-            /** Format: uuid */
-            lastPostId?: string | null;
+            lastPost?: null | components["schemas"]["TopicLastPost"];
             locked: boolean;
             pinned: boolean;
             /** Format: int32 */
             replyCount: number;
+            /** @description Cosmetic slug for URLs; the `id` is authoritative. */
             slug: string;
             title: string;
             /** Format: int32 */
             viewCount: number;
         };
+        /** @description A page of topics: pinned first, then by latest activity. */
+        TopicSummaryPage: {
+            items: components["schemas"]["TopicSummary"][];
+            /**
+             * Format: int32
+             * @description 1-based page number.
+             */
+            page: number;
+            /**
+             * Format: int32
+             * @description Page size actually applied.
+             */
+            perPage: number;
+            /**
+             * Format: int64
+             * @description Total number of items over all pages.
+             */
+            total: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        /** @description Partial update of the private account data. */
         UpdateAccountRequest: {
-            email: string;
+            /** Format: email */
+            email?: string | null;
             firstName?: string | null;
             lastName?: string | null;
         };
+        /** @description Partial update of a board. */
+        UpdateBoardRequest: {
+            adminOnly?: boolean | null;
+            description?: string | null;
+            name?: string | null;
+        };
+        /** @description Partial update of a category. */
+        UpdateCategoryRequest: {
+            adminOnly?: boolean | null;
+            description?: string | null;
+            name?: string | null;
+        };
+        /** @description Partial update; absent fields are unchanged. */
+        UpdateNewsRequest: {
+            body?: string | null;
+            title?: string | null;
+        };
         UpdatePostRequest: {
+            /** @description The new Markdown body. The previous body is kept as a revision. */
             body: string;
         };
+        /** @description Partial update of the account preferences. */
         UpdatePreferencesRequest: {
-            language: string;
-            notifyOnQuote: boolean;
-            notifyOnReply: boolean;
-            showOnline: boolean;
-            timezone: string;
+            /** @example en-US */
+            language?: string | null;
+            notifyOnQuote?: boolean | null;
+            notifyOnReply?: boolean | null;
+            /** @description Show me in the list of users online. */
+            showOnline?: boolean | null;
+            /**
+             * @description IANA time zone name, e.g. `Europe/Berlin`.
+             * @example UTC
+             */
+            timezone?: string | null;
         };
+        /**
+         * @description Partial update of the public profile. Absent fields are unchanged;
+         *     `null` (or an empty string) clears an optional field.
+         */
         UpdateProfileRequest: {
+            /** @description Markdown-free plain text. */
             aboutMe?: string | null;
-            displayName: string;
+            displayName?: string | null;
             location?: string | null;
+            /**
+             * Format: uri
+             * @description `http://` or `https://` URL.
+             */
             website?: string | null;
         };
         UpdateRoleRequest: {
-            role: string;
+            role: components["schemas"]["Role"];
+        };
+        /**
+         * @description Moderator/admin partial update of a topic. Absent fields are unchanged.
+         *     Setting `boardId` moves the topic to another board (counters are fixed in
+         *     the same transaction).
+         */
+        UpdateTopicRequest: {
+            /** Format: uuid */
+            boardId?: string | null;
+            locked?: boolean | null;
+            pinned?: boolean | null;
+        };
+        /** @description The author/user summary embedded in other resources. */
+        UserSummary: {
+            /** @description What the UI shows everywhere; defaults to the username. */
+            displayName: string;
+            /** Format: uuid */
+            id: string;
+            role: components["schemas"]["Role"];
+            username: string;
         };
     };
     responses: never;
@@ -891,19 +1260,68 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Logged in */
+            /** @description Logged in; session cookie set. */
             204: {
                 headers: {
+                    /** @description `hypercs_session` (HttpOnly, SameSite=Lax, Secure in production) */
+                    "Set-Cookie"?: string;
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description Invalid credentials */
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -916,12 +1334,30 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Logged out */
+            /** @description Logged out; session cookie cleared. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -938,19 +1374,61 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Registered */
+            /** @description Account created. */
             201: {
+                headers: {
+                    /** @description URL of the new user's public profile */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserSummary"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
-            /** @description Validation failed */
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -967,19 +1445,91 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Created. */
             201: {
+                headers: {
+                    /** @description URL of the new board */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedResponse"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
-    board_detail: {
+    board_page: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description 1-based page number (default 1).
+                 * @example 1
+                 */
+                page?: number;
+                /**
+                 * @description Items per page. Clamped to 1-100; each endpoint has its own default
+                 *     (topics 20, posts 15, news 10, users 20, revisions 20).
+                 * @example 20
+                 */
+                perPage?: number;
+            };
             header?: never;
             path: {
+                /** @description Board id */
                 id: string;
             };
             cookie?: never;
@@ -990,7 +1540,27 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["BoardPageResponse"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -999,17 +1569,46 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Board id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
+            /** @description Deleted (cascade). */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1018,21 +1617,86 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Board id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["BoardRequest"];
+                "application/json": components["schemas"]["UpdateBoardRequest"];
             };
         };
         responses: {
+            /** @description Updated. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1041,21 +1705,86 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Board id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReorderDirection"];
+                "application/json": components["schemas"]["ReorderRequest"];
             };
         };
         responses: {
+            /** @description Reordered. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1064,6 +1793,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Board id */
                 id: string;
             };
             cookie?: never;
@@ -1074,11 +1804,97 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Created. */
             201: {
+                headers: {
+                    /** @description URL of the new topic */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedResponse"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict with current state (`duplicate_post`, `last_admin`). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Flood control (`posting_too_fast`): wait before posting again. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1114,11 +1930,70 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Created. */
             201: {
+                headers: {
+                    /** @description URL of the new category */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedResponse"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1127,17 +2002,46 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Category id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
+            /** @description Deleted (cascade). */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1146,21 +2050,86 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Category id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CategoryRequest"];
+                "application/json": components["schemas"]["UpdateCategoryRequest"];
             };
         };
         responses: {
+            /** @description Updated. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1169,21 +2138,86 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Category id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReorderDirection"];
+                "application/json": components["schemas"]["ReorderRequest"];
             };
         };
         responses: {
+            /** @description Reordered. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1219,11 +2253,161 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Saved. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    get_site_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteSettings"];
+                };
+            };
+        };
+    };
+    put_site_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiteSettings"];
+            };
+        };
+        responses: {
+            /** @description Saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1259,11 +2443,66 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Saved. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1276,6 +2515,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description The service is alive. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1303,6 +2543,15 @@ export interface operations {
                     "application/json": components["schemas"]["MeResponse"];
                 };
             };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
         };
     };
     update_account: {
@@ -1318,11 +2567,66 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Updated. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1339,11 +2643,66 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Changed; other sessions revoked. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1360,11 +2719,66 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Updated. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1381,11 +2795,66 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Updated. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1402,7 +2871,18 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SessionInfo"][];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1411,23 +2891,64 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Session id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
+            /** @description Revoked. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
         };
     };
     list_news: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description 1-based page number (default 1).
+                 * @example 1
+                 */
+                page?: number;
+                /**
+                 * @description Items per page. Clamped to 1-100; each endpoint has its own default
+                 *     (topics 20, posts 15, news 10, users 20, revisions 20).
+                 * @example 20
+                 */
+                perPage?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1438,7 +2959,18 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["NewsItemPage"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1451,57 +2983,74 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["NewsRequest"];
+                "application/json": components["schemas"]["CreateNewsRequest"];
             };
         };
         responses: {
+            /** @description Created. */
             201: {
                 headers: {
+                    /** @description URL of the new news item */
+                    Location?: string;
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CreatedResponse"];
+                };
             };
-        };
-    };
-    delete_news: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
-        };
-    };
-    update_news: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NewsRequest"];
-            };
-        };
-        responses: {
-            204: {
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1510,7 +3059,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                slug: string;
+                /** @description News item id */
+                id: string;
             };
             cookie?: never;
         };
@@ -1520,7 +3070,194 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
+                content: {
+                    "application/json": components["schemas"]["NewsItem"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    delete_news: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description News item id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
                 content?: never;
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    update_news: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description News item id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNewsRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    get_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Post id */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDetail"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1529,17 +3266,46 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Post id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
+            /** @description Deleted. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1548,6 +3314,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Post id */
                 id: string;
             };
             cookie?: never;
@@ -1558,19 +3325,96 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Edited. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
         };
     };
     list_revisions: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description 1-based page number (default 1).
+                 * @example 1
+                 */
+                page?: number;
+                /**
+                 * @description Items per page. Clamped to 1-100; each endpoint has its own default
+                 *     (topics 20, posts 15, news 10, users 20, revisions 20).
+                 * @example 20
+                 */
+                perPage?: number;
+            };
             header?: never;
             path: {
+                /** @description Post id */
                 id: string;
             };
             cookie?: never;
@@ -1581,7 +3425,45 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostRevisionPage"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1590,18 +3472,57 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Post id */
                 id: string;
+                /** @description Revision id */
                 revisionId: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
+            /** @description Restored as a new edit. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1626,9 +3547,22 @@ export interface operations {
     };
     get_topic: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description 1-based page number (default 1).
+                 * @example 1
+                 */
+                page?: number;
+                /**
+                 * @description Items per page. Clamped to 1-100; each endpoint has its own default
+                 *     (topics 20, posts 15, news 10, users 20, revisions 20).
+                 * @example 20
+                 */
+                perPage?: number;
+            };
             header?: never;
             path: {
+                /** @description Topic id */
                 id: string;
             };
             cookie?: never;
@@ -1639,7 +3573,27 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["TopicPageResponse"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1648,63 +3602,134 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Topic id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
+            /** @description Deleted (cascade). */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
         };
     };
-    moderate_topic: {
+    update_topic: {
         parameters: {
             query?: never;
             header?: never;
             path: {
+                /** @description Topic id */
                 id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ModerateTopicRequest"];
+                "application/json": components["schemas"]["UpdateTopicRequest"];
             };
         };
         responses: {
+            /** @description Updated. */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-        };
-    };
-    move_topic: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MoveTopicRequest"];
-            };
-        };
-        responses: {
-            204: {
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1713,6 +3738,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Topic id */
                 id: string;
             };
             cookie?: never;
@@ -1723,17 +3749,115 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Created. */
             201: {
+                headers: {
+                    /** @description URL of the new post */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedResponse"];
+                };
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict with current state (`duplicate_post`, `last_admin`). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Flood control (`posting_too_fast`): wait before posting again. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
     list_users: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description 1-based page number (default 1).
+                 * @example 1
+                 */
+                page?: number;
+                /**
+                 * @description Items per page. Clamped to 1-100; each endpoint has its own default
+                 *     (topics 20, posts 15, news 10, users 20, revisions 20).
+                 * @example 20
+                 */
+                perPage?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1744,30 +3868,36 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AdminUserPage"];
+                };
             };
-        };
-    };
-    update_role: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateRoleRequest"];
-            };
-        };
-        responses: {
-            204: {
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };
@@ -1776,6 +3906,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Username (case-insensitive) */
                 username: string;
             };
             cookie?: never;
@@ -1786,7 +3917,115 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
+                content: {
+                    "application/json": components["schemas"]["PublicProfile"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    update_role: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Username (case-insensitive) */
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoleRequest"];
+            };
+        };
+        responses: {
+            /** @description Role changed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
                 content?: never;
+            };
+            /** @description Malformed request (`invalid_json`, `invalid_query`). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description No valid session (`unauthorized`) or wrong credentials (`invalid_credentials`). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not allowed (`forbidden`): missing/invalid `X-CSRF-Token`, untrusted `Origin`, or insufficient role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not found (`not_found`). Also returned for resources hidden from the caller (admin-only boards). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict with current state (`duplicate_post`, `last_admin`). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Request body too large (`payload_too_large`). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Content-Type must be application/json (`unsupported_media_type`). */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Validation failed (`validation_failed`) with per-field `errors`. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
             };
         };
     };

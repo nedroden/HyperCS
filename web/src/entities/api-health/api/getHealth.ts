@@ -1,5 +1,9 @@
-import { getJson } from '@/shared/api';
+import { api } from '@/shared/api';
 
-export type Health = { status: 'ok'; version: string; database: 'up' | 'down' };
-
-export const getHealth = () => getJson<Health>('/health');
+export async function getHealth() {
+    const { data, error } = await api.GET('/api/v1/health');
+    if (error || !data) {
+        throw new Error('health check failed');
+    }
+    return data;
+}

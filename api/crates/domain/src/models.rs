@@ -1,11 +1,12 @@
 //! Core domain models shared between the db and api crates. No I/O here.
 
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+/// Account role. Serialized lowercase: `admin`, `moderator`, `member`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "lowercase")]
 pub enum Role {
     Admin,
     Moderator,
@@ -13,6 +14,8 @@ pub enum Role {
 }
 
 impl Role {
+    pub const ALL: [Role; 3] = [Role::Admin, Role::Moderator, Role::Member];
+
     pub fn as_db_str(self) -> &'static str {
         match self {
             Role::Admin => "admin",
@@ -30,6 +33,13 @@ impl Role {
         }
     }
 
+    /// Decodes a role read from the database. The column has a CHECK
+    /// constraint, so an unknown value cannot occur; fall back to the least
+    /// privileged role rather than failing a read.
+    pub fn from_db_or_member(s: &str) -> Self {
+        Self::from_db_str(s).unwrap_or(Role::Member)
+    }
+
     pub fn is_staff(self) -> bool {
         matches!(self, Role::Admin | Role::Moderator)
     }
@@ -40,23 +50,4 @@ impl Role {
 pub struct AuthUser {
     pub id: Uuid,
     pub role: Role,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct UserSummary {
-    pub id: Uuid,
-    pub username: String,
-    pub display_name: String,
-    pub role: Role,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LastPostSummary {
-    pub post_id: Uuid,
-    pub topic_id: Uuid,
-    pub topic_title: String,
-    pub author: UserSummary,
-    pub created_at: DateTime<Utc>,
 }

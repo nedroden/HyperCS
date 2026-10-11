@@ -1,0 +1,61 @@
+.state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--color-text-soft);
+}
+.state p {
+    margin: 0 0 10px;
+}
+.state-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--color-text-strong);
+}
+.state-error .state-title {
+    color: var(--color-error);
+}
+.state-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid var(--color-border-input);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .spinner {
+        animation-duration: 3s;
+    }
+}
+
+/* Not found page (mocks/404.html) */
+.not-found {
+    padding: 60px 0;
+    text-align: center;
+}
+.not-found-code {
+    margin: 0;
+    font-size: 72px;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+.not-found h2 {
+    margin: 10px 0 20px;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--color-text-strong);
+}
+.not-found .btn {
+    padding: 10px 22px;
+}

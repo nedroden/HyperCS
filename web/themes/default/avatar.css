@@ -1,6 +1,6 @@
 .avatar {
-    background: linear-gradient(135deg, #4a82b8, #77a6d0);
-    color: #fff;
+    background: var(--gradient-avatar);
+    color: var(--color-on-primary);
     font-weight: 500;
     display: flex;
     align-items: center;

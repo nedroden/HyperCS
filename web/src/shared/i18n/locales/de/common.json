@@ -1,0 +1,87 @@
+{
+    "app": {
+        "name": "HyperCS"
+    },
+    "nav": {
+        "home": "Startseite",
+        "forum": "Forum",
+        "login": "Anmelden",
+        "logout": "Abmelden"
+    },
+    "userbox": {
+        "login": "Anmelden",
+        "register": "Registrieren",
+        "hello": "Hallo,",
+        "logout": "Abmelden"
+    },
+    "footer": {
+        "language": "Sprache"
+    },
+    "a11y": {
+        "skipToContent": "Zum Hauptinhalt springen",
+        "mainNavigation": "Hauptnavigation"
+    },
+    "common": {
+        "loading": "Wird geladen …",
+        "retry": "Erneut versuchen",
+        "backHome": "Zurück zur Startseite"
+    },
+    "state": {
+        "empty": {
+            "title": "Noch nichts vorhanden",
+            "text": "Im Moment gibt es hier nichts anzuzeigen."
+        },
+        "error": {
+            "title": "Etwas ist schiefgelaufen",
+            "text": "Die Daten konnten nicht geladen werden. Bitte versuche es erneut."
+        }
+    },
+    "notFound": {
+        "code": "404",
+        "title": "Diese Seite wurde nicht gefunden.",
+        "back": "Zurück zur Startseite",
+        "documentTitle": "Seite nicht gefunden"
+    },
+    "errorBoundary": {
+        "title": "Etwas ist schiefgelaufen",
+        "text": "Es ist ein unerwarteter Fehler aufgetreten. Lade die Seite neu, um fortzufahren.",
+        "reload": "Seite neu laden"
+    },
+    "markdown": {
+        "write": "Schreiben",
+        "preview": "Vorschau",
+        "tabs": "Editor-Modus",
+        "previewEmpty": "Nichts zur Vorschau vorhanden.",
+        "counter_one": "{{count}} / {{max}} Zeichen",
+        "counter_other": "{{count}} / {{max}} Zeichen",
+        "hint": "Markdown wird unterstützt. Höchstens {{max, number}} Zeichen.",
+        "tooLong": "Der Text ist zu lang."
+    },
+    "pagination": {
+        "label": "Seitennavigation",
+        "previous": "Vorherige Seite",
+        "next": "Nächste Seite",
+        "page": "Seite {{page}}",
+        "currentPage": "Seite {{page}}, aktuelle Seite"
+    },
+    "form": {
+        "summary_one": "{{count}} Fehler braucht deine Aufmerksamkeit:",
+        "summary_other": "{{count}} Fehler brauchen deine Aufmerksamkeit:",
+        "formError": "Das Formular konnte nicht gesendet werden."
+    },
+    "api": {
+        "ok": "API-Status: online",
+        "down": "API-Status: nicht erreichbar",
+        "loading": "API-Status: wird geprüft …"
+    },
+    "apiState": {
+        "notFound": {
+            "title": "Nicht gefunden",
+            "text": "Diese Seite existiert nicht oder wurde entfernt."
+        },
+        "forbidden": {
+            "title": "Kein Zugriff",
+            "text": "Du hast keinen Zugriff auf diese Seite."
+        }
+    }
+}

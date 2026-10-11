@@ -1,0 +1,106 @@
+{
+    "forum": {
+        "boardIndex": "Board index",
+        "topics_one": "{{count}} topic",
+        "topics_other": "{{count}} topics",
+        "posts_one": "{{count}} post",
+        "posts_other": "{{count}} posts",
+        "by": "by",
+        "newTopic": "New topic",
+        "columns": {
+            "topic": "Topic",
+            "replies": "Replies",
+            "views": "Views",
+            "lastPost": "Last post"
+        },
+        "pinned": "Pinned",
+        "locked": "Locked",
+        "startedBy": "Started by",
+        "postReply": "Post reply",
+        "postCount": "Posts: {{count}}",
+        "joined": "Joined:",
+        "role": {
+            "admin": "Admin",
+            "moderator": "Moderator",
+            "member": "Member"
+        },
+        "permalink": "Link to post {{number}}",
+        "edited": "Edited",
+        "editedBy": "Edited by {{name}}",
+        "quote": "Quote",
+        "edit": "Edit",
+        "delete": "Delete",
+        "replyHeading": "Post a reply",
+        "replyPlaceholder": "Write your reply...",
+        "replySubject": "Re: {{title}}",
+        "replyGuest": "<login>Log in</login> or <register>register</register> to reply to this topic.",
+        "replyLocked": "This topic is locked. Only moderators and administrators can reply.",
+        "submit": "Submit",
+        "guestBanner": "You are browsing as a guest. <login>Log in</login> or <register>register</register> to create topics and reply.",
+        "empty": {
+            "categoriesTitle": "No boards yet",
+            "categoriesText": "There are no boards to show.",
+            "topicsTitle": "No topics yet",
+            "topicsText": "Be the first to start a discussion in this board."
+        },
+        "stats": {
+            "title": "Statistics",
+            "intro": "A quick look at what's going on in the community.",
+            "topics": "Topics",
+            "posts": "Posts",
+            "members": "Members",
+            "boards": "Boards",
+            "newestMember": "Newest member:",
+            "latestPost": "Latest post:",
+            "usersOnline_one": "{{count}} user online:",
+            "usersOnline_other": "{{count}} users online:"
+        },
+        "form": {
+            "title": "Title",
+            "titleHint": "{{min}}–{{max}} characters.",
+            "titlePlaceholder": "Give your topic a title",
+            "message": "Message",
+            "messagePlaceholder": "Write your message in Markdown...",
+            "postTopic": "Post topic",
+            "saveChanges": "Save changes",
+            "cancel": "Cancel"
+        },
+        "editPostTitle": "Edit post",
+        "historyTitle": "Edit history",
+        "history": {
+            "link": "View edit history",
+            "linkCount_one": "View edit history ({{count}} revision)",
+            "linkCount_other": "View edit history ({{count}} revisions)",
+            "current": "Current version",
+            "postedBy": "posted by {{name}}",
+            "editedBy": "edited by {{name}}",
+            "replaced": "Version replaced",
+            "restore": "Restore this version",
+            "emptyTitle": "No earlier versions",
+            "emptyText": "This post has not been edited yet."
+        },
+        "deletePost": {
+            "title": "Delete post?",
+            "text": "This post will be deleted permanently. This cannot be undone.",
+            "firstPostWarning": "This is the first post of the topic. Deleting it deletes the whole topic with all of its replies permanently. This cannot be undone."
+        },
+        "deleteTopic": {
+            "title": "Delete topic?",
+            "text": "The topic and all of its posts will be deleted permanently. This cannot be undone."
+        },
+        "moderation": {
+            "label": "Moderation",
+            "pin": "Pin topic",
+            "unpin": "Unpin topic",
+            "lock": "Lock topic",
+            "unlock": "Unlock topic",
+            "move": "Move topic",
+            "deleteTopic": "Delete topic"
+        },
+        "move": {
+            "title": "Move topic \"{{title}}\"",
+            "destination": "Destination board",
+            "submit": "Move topic"
+        }
+    }
+}

@@ -1,0 +1,43 @@
+.profile-head {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    margin: 10px 5px 24px;
+}
+.profile-head .avatar {
+    width: 96px;
+    height: 96px;
+    font-size: 42px;
+}
+.profile-head h2 {
+    margin: 0 0 4px;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--color-heading);
+    overflow-wrap: anywhere;
+}
+.profile-head .meta {
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+.profile-website {
+    margin: 0 5px 20px;
+    font-size: 14px;
+}
+.profile-about {
+    margin: 0 5px;
+}
+.profile-about-text {
+    margin: 0;
+    line-height: 23px;
+    color: var(--color-text-strong);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+    .profile-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

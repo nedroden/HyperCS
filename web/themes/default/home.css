@@ -1,8 +1,8 @@
 .hero {
     margin: 5px;
     padding: 50px 40px;
-    background: linear-gradient(135deg, #4a82b8 0%, #77a6d0 100%);
-    color: #fff;
+    background: var(--gradient-hero);
+    color: var(--color-on-primary);
     border-radius: 3px;
 }
 .hero h2 {
@@ -18,11 +18,11 @@
 }
 
 .hero .btn {
-    background: #fff;
+    background: var(--color-bg-content);
     color: var(--color-link);
 }
 .hero .btn:hover {
-    background: #f0f5fa;
+    background: var(--color-bg-accent-soft);
 }
 .features {
     display: grid;
@@ -31,20 +31,20 @@
     margin: 0 5px 30px;
 }
 .feature {
-    background: #f7f7f7;
+    background: var(--color-bg-subtle);
     padding: 22px 20px;
 }
 .feature h3 {
     margin: 0 0 8px;
     font-size: 20px;
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-strong);
 }
 .feature p {
     margin: 0;
     font-size: 14px;
     line-height: 22px;
-    color: #666;
+    color: var(--color-text-soft);
 }
 .section-head {
     background: var(--color-bg-section);
@@ -55,7 +55,7 @@
     margin: 0;
     font-size: 20px;
     font-weight: 500;
-    color: #333;
+    color: var(--color-text-strong);
 }
 .news {
     margin: 0 5px 10px;
@@ -71,14 +71,14 @@
 }
 .news .date {
     font-size: 13px;
-    color: #777;
+    color: var(--color-text-muted);
     margin: 3px 0 6px;
 }
 .news p {
     margin: 0;
     font-size: 14px;
     line-height: 22px;
-    color: #666;
+    color: var(--color-text-soft);
 }
 
 @media (max-width: 700px) {
@@ -88,4 +88,23 @@
     .hero h2 {
         font-size: 30px;
     }
+}
+
+.news-toggle {
+    margin-top: 6px;
+    padding: 0;
+    background: none;
+    border: 0;
+    font: inherit;
+    font-size: 13px;
+    color: var(--color-link);
+    cursor: pointer;
+}
+.news-toggle:hover {
+    text-decoration: underline;
+}
+.cms-text {
+    margin: 0 5px;
+    max-width: 900px;
+    line-height: 24px;
 }

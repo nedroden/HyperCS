@@ -10,7 +10,7 @@ COPY crates/server/Cargo.toml crates/server/Cargo.toml
 # so this - and the whole image - builds without a live database).
 RUN mkdir -p crates/domain/src crates/db/src crates/api/src crates/server/src \
     && echo 'fn main() {}' > crates/server/src/main.rs \
-    && touch crates/domain/src/lib.rs crates/db/src/lib.rs crates/api/src/lib.rs \
+    && touch crates/domain/src/lib.rs crates/db/src/lib.rs crates/api/src/lib.rs crates/server/src/lib.rs \
     && cargo build --release --workspace \
     && rm -rf crates/*/src
 COPY crates/db/migrations crates/db/migrations

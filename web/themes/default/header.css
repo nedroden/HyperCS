@@ -1,5 +1,5 @@
 .site-header {
-    height: 101px;
+    height: var(--header-height);
     padding: 0 30px;
     display: flex;
     align-items: center;
@@ -16,7 +16,7 @@
     font-weight: 400;
 }
 .userbox {
-    background: #f4f4f4;
+    background: var(--color-bg-box);
     border-radius: 3px;
     padding: 10px;
     font-size: 16px;
@@ -33,7 +33,25 @@
     padding: 0 20px;
 }
 .site-nav a {
-    color: #fff;
+    color: var(--color-on-primary);
     font-size: 14px;
     padding: 0 12px;
+}
+
+.site-header .logo img {
+    height: var(--logo-height);
+    width: auto;
+}
+
+@media (max-width: 700px) {
+    .site-header {
+        height: var(--header-height-small);
+        padding: 0 15px;
+    }
+    .site-header .logo img {
+        height: var(--logo-height-small);
+    }
+    .userbox {
+        font-size: 14px;
+    }
 }

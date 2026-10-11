@@ -1,16 +1,30 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
+import type { ComponentType, ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { SessionProvider } from '@/entities/session';
+import { createQueryClient } from '@/shared/api';
 
-const queryClient = new QueryClient();
+const defaultQueryClient = createQueryClient();
 
-export function Providers({ children }: { children: ReactNode }) {
+type ProvidersProps = {
+    children: ReactNode;
+    /** Tests pass their own client (no retries, fresh cache). */
+    queryClient?: QueryClient;
+    /** Tests pass a `MemoryRouter` wrapper. */
+    Router?: ComponentType<{ children: ReactNode }>;
+};
+
+/** Query client, router and session state, in the order the rest of the app relies on. */
+export function Providers({
+    children,
+    queryClient = defaultQueryClient,
+    Router = BrowserRouter,
+}: ProvidersProps) {
     return (
         <QueryClientProvider client={queryClient}>
-            <SessionProvider>
-                <BrowserRouter>{children}</BrowserRouter>
-            </SessionProvider>
+            <Router>
+                <SessionProvider>{children}</SessionProvider>
+            </Router>
         </QueryClientProvider>
     );
 }

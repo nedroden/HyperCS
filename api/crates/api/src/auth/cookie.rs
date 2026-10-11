@@ -5,9 +5,10 @@ use time::Duration as TimeDuration;
 
 use crate::auth::extractor::SESSION_COOKIE;
 
-/// Builds the `Set-Cookie` header value for a newly created session.
-/// `remember` extends the cookie's lifetime to 30 days; otherwise it is a
-/// browser-session cookie backed by a 24h idle expiry enforced server-side.
+/// Builds the session cookie: HTTP-only, `SameSite=Lax`, `Secure` in
+/// production. `remember` makes it a 30-day persistent cookie; otherwise it
+/// is a browser-session cookie backed by a 24 h idle expiry enforced
+/// server-side.
 pub fn build_session_cookie(token: String, remember: bool, secure: bool) -> Cookie<'static> {
     let mut cookie = Cookie::new(SESSION_COOKIE, token);
     cookie.set_http_only(true);
@@ -30,10 +31,16 @@ pub fn build_logout_cookie(secure: bool) -> Cookie<'static> {
     cookie
 }
 
+/// Initial expiry: 30 days for "remember me", otherwise 24 h of idleness
+/// (slid forward on activity, see `sessions::touch`).
 pub fn session_expiry(remember: bool, now: DateTime<Utc>) -> DateTime<Utc> {
     if remember {
         now + chrono::Duration::days(SESSION_REMEMBER_DAYS)
     } else {
-        now + chrono::Duration::hours(SESSION_IDLE_HOURS)
+        idle_expiry(now)
     }
+}
+
+pub fn idle_expiry(now: DateTime<Utc>) -> DateTime<Utc> {
+    now + chrono::Duration::hours(SESSION_IDLE_HOURS)
 }

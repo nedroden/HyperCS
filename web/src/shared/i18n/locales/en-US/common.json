@@ -1,0 +1,87 @@
+{
+    "app": {
+        "name": "HyperCS"
+    },
+    "nav": {
+        "home": "Home",
+        "forum": "Forum",
+        "login": "Login",
+        "logout": "Logout"
+    },
+    "userbox": {
+        "login": "Login",
+        "register": "Register",
+        "hello": "Hello,",
+        "logout": "Logout"
+    },
+    "footer": {
+        "language": "Language"
+    },
+    "a11y": {
+        "skipToContent": "Skip to main content",
+        "mainNavigation": "Main navigation"
+    },
+    "common": {
+        "loading": "Loading…",
+        "retry": "Try again",
+        "backHome": "Back to the homepage"
+    },
+    "state": {
+        "empty": {
+            "title": "Nothing here yet",
+            "text": "There is nothing to show at the moment."
+        },
+        "error": {
+            "title": "Something went wrong",
+            "text": "The data could not be loaded. Please try again."
+        }
+    },
+    "notFound": {
+        "code": "404",
+        "title": "This page could not be found.",
+        "back": "Back to the homepage",
+        "documentTitle": "Page not found"
+    },
+    "errorBoundary": {
+        "title": "Something went wrong",
+        "text": "An unexpected error occurred. Reload the page to continue.",
+        "reload": "Reload page"
+    },
+    "markdown": {
+        "write": "Write",
+        "preview": "Preview",
+        "tabs": "Editor mode",
+        "previewEmpty": "Nothing to preview.",
+        "counter_one": "{{count}} / {{max}} character",
+        "counter_other": "{{count}} / {{max}} characters",
+        "hint": "Markdown is supported. Maximum {{max, number}} characters.",
+        "tooLong": "The text is too long."
+    },
+    "pagination": {
+        "label": "Pagination",
+        "previous": "Previous page",
+        "next": "Next page",
+        "page": "Page {{page}}",
+        "currentPage": "Page {{page}}, current page"
+    },
+    "form": {
+        "summary_one": "{{count}} error needs your attention:",
+        "summary_other": "{{count}} errors need your attention:",
+        "formError": "The form could not be submitted."
+    },
+    "api": {
+        "ok": "API status: online",
+        "down": "API status: unreachable",
+        "loading": "API status: checking…"
+    },
+    "apiState": {
+        "notFound": {
+            "title": "Not found",
+            "text": "This page does not exist or has been removed."
+        },
+        "forbidden": {
+            "title": "No access",
+            "text": "You do not have access to this page."
+        }
+    }
+}

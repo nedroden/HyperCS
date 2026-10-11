@@ -14,4 +14,10 @@
 @import './settings.css';
 @import './forum.css';
 @import './topic.css';
+@import './forms.css';
+@import './markdown.css';
+@import './states.css';
 @import './api-status.css';
+@import './dialog.css';
+@import './admin.css';
+@import './profile.css';

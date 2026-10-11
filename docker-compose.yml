@@ -39,7 +39,7 @@ services:
       RUST_LOG: info,hypercs_api=debug,hypercs_server=debug
       RUN_MIGRATIONS_ON_START: "true"
       COOKIE_SECURE: "false"
-      ALLOWED_ORIGINS: ""
+      ALLOWED_ORIGINS: "http://localhost:5173"
       API_DOCS_ENABLED: "true"
       ADMIN_USERNAME: admin
       ADMIN_EMAIL: admin@example.com

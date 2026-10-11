@@ -1,5 +1,9 @@
 import createClient from 'openapi-fetch';
-import type { paths } from './generated/schema';
+import type { components, paths } from './generated/schema';
+
+/** A schema from the OpenAPI document by name: `Schema<'MeResponse'>`. Derive every request/response type from this. */
+export type Schema<K extends keyof components['schemas']> =
+    components['schemas'][K];
 
 /** Base path of the HyperCS API (proxied to the backend by Vite in development). */
 export const API_BASE = '/api/v1';
@@ -14,7 +18,13 @@ export function setCsrfToken(token: string | undefined) {
 const SAFE_METHODS = new Set(['GET', 'HEAD']);
 
 /** Typed fetch client generated from the OpenAPI schema; never hand-write request/response types. */
-export const api = createClient<paths>({ baseUrl: '', credentials: 'same-origin' });
+export const api = createClient<paths>({
+    // Absolute (same origin) because `new Request()` rejects relative URLs outside a browser, e.g. in tests.
+    baseUrl: globalThis.location?.origin ?? '',
+    credentials: 'same-origin',
+    // Resolve `fetch` per request (not at creation) so tests can stub `globalThis.fetch`.
+    fetch: (request) => globalThis.fetch(request),
+});
 
 api.use({
     onRequest({ request }) {

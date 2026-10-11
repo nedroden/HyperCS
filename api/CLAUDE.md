@@ -28,9 +28,25 @@ product-wide rules, `planning/requirements.md` for what to build, and
   `hypercs-server` (`.env.example` documents them).
 - Logging: `tracing` + `tracing-subscriber`.
 - OpenAPI: `utoipa`, served at `/api/v1/openapi.json` (always) and Swagger UI
-  at `/api/v1/docs` (behind `API_DOCS_ENABLED`); the front-end client is
-  generated from it (`cd web && npm run generate:api`, API must be running or
-  use `cargo run -p hypercs-server -- openapi > /tmp/openapi.json`).
+  at `/api/v1/docs` (behind `API_DOCS_ENABLED`). The front-end client is
+  generated from `cargo run -p hypercs-server -- openapi` (no running server
+  or env needed): `cd web && npm run generate:api`; `npm run check:api` fails
+  if the checked-in `schema.ts` is stale. Every handler documents typed
+  success bodies, params, `201` + `Location`, `204` for deletes and
+  `application/problem+json` errors (`ProblemDetails`); schema limits are
+  repeated as `#[schema(...)]` and a unit test checks them against the domain
+  constants.
+- Conventions: DB row structs (`FromRow`) live in `hypercs-db`; response DTOs
+  (named, concrete, e.g. `TopicSummaryPage`) live in `hypercs-api::dto`.
+  Updates are partial PATCH (`null` clears nullable fields). Command-style
+  actions are `POST` sub-resources (`/reorder`, `/revisions/{id}/restore`);
+  moving a topic is `PATCH /topics/{id}` with `boardId`.
+- Posts: `GET /posts/{id}` returns `PostDetail` (`post` + topic/board/category
+  `context` incl. `isFirstPost` and the `page` of the topic it is on); hidden
+  boards give 404 like everywhere else. Also `PATCH|DELETE /posts/{id}` and
+  `GET /posts/{id}/revisions`.
+- Lock order in transactions: posting advisory lock, topic, board(s) by id,
+  user counters.
 
 ## Workspace layout
 
@@ -45,7 +61,8 @@ api/
     domain/            # models, newtypes, constants, the policy module, DomainError. No I/O.
       src/
         constants.rs   # validation limits, pagination sizes, flood-control thresholds
-        models.rs       # Role, AuthUser, UserSummary, LastPostSummary
+        models.rs       # Role, AuthUser
+        pagination.rs   # PageParams
         policy.rs       # can_edit_post(), can_view_board(), ... - pure, exhaustively unit tested
         validation.rs   # normalize_text, slugify, username/display-name checks
         errors.rs       # DomainError (validation/not_found/forbidden/conflict/...)
@@ -53,11 +70,12 @@ api/
       migrations/       # 0001_init.sql, forward-only, no down migrations
       src/
         users.rs, sessions.rs, structure.rs, topics.rs, posts.rs, news.rs, cms.rs, stats.rs
-        pagination.rs   # Page<T> / PageParams shared by every list endpoint
+        maintenance.rs  # recount (counter repair)
     api/                # axum routes, extractors, services, OpenAPI
       src/
         auth/            # password hashing, session cookie, AuthUser/OptionalAuthUser/SameOrigin extractors
-        dto.rs           # request/response DTOs (validator + utoipa::ToSchema)
+        dto/             # request/response DTOs (validator + utoipa::ToSchema)
+        middleware.rs    # request id + tracing span, security headers
         services/        # business rules + authorization calls into policy; one file per domain area
         routes/          # thin handlers: extract, call a service, shape the response
         error.rs         # ApiError -> problem+json
@@ -65,7 +83,7 @@ api/
     server/             # the binary: config, wiring, CLI, background tasks
       src/
         main.rs          # clap CLI: `serve` (default), `migrate`, `recount`, `openapi`
-        config.rs, seed.rs, housekeeping.rs, recount.rs
+        lib.rs, config.rs, seed.rs, housekeeping.rs, recount.rs  # library shared with tests
       tests/             # integration tests (Testcontainers Postgres)
 ```
 
@@ -101,9 +119,11 @@ recount`).
 
 - Unit tests next to the code (`#[cfg(test)]`), notably the policy module and
   `hypercs_domain::validation`.
-- Integration tests in `crates/server/tests/` run the real axum router (via
-  `tower::ServiceExt::oneshot`, no TCP listener needed) against a real
-  PostgreSQL instance started per test with `testcontainers-modules`. Requires
+- Integration tests in `crates/server/tests/api/` (one test binary, shared
+  helpers in `common/`) run the real axum router (via
+  `tower::ServiceExt::oneshot`) against PostgreSQL 17 started once per run with
+  `testcontainers-modules`; each test gets a fresh database cloned from a
+  migrated template. Requires
   Docker; on a machine using Colima, make sure `DOCKER_HOST` points at its
   socket, e.g. `export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock`.
 - Before finishing a change, all of these must pass:

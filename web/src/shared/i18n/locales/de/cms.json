@@ -1,0 +1,16 @@
+{
+    "home": {
+        "latestNews": "Neueste Nachrichten",
+        "noNews": "Es gibt noch keine Neuigkeiten.",
+        "loadError": "Die Startseite konnte nicht geladen werden.",
+        "newsLoadError": "Die Neuigkeiten konnten nicht geladen werden."
+    },
+    "news": {
+        "readMore": "Weiterlesen",
+        "showLess": "Weniger anzeigen"
+    },
+    "terms": {
+        "title": "Nutzungsbedingungen",
+        "loadError": "Die Nutzungsbedingungen konnten nicht geladen werden."
+    }
+}

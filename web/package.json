@@ -12,6 +12,7 @@
         "test": "vitest run",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
+        "check:api": "cargo run --quiet --manifest-path ../api/Cargo.toml -p hypercs-server -- openapi > ../api/target/openapi.check.json && openapi-typescript ../api/target/openapi.check.json -o ../api/target/schema.check.ts && prettier --stdin-filepath src/shared/api/generated/schema.ts < ../api/target/schema.check.ts | diff -u src/shared/api/generated/schema.ts -",
         "generate:api": "cargo run --quiet --manifest-path ../api/Cargo.toml -p hypercs-server -- openapi > ../api/target/openapi.json && openapi-typescript ../api/target/openapi.json -o src/shared/api/generated/schema.ts"
     },
     "dependencies": {
@@ -46,5 +47,10 @@
         "typescript": "~6.0.2",
         "vite": "^8.3.0",
         "vitest": "^5.0.3"
+    },
+    "overrides": {
+        "openapi-typescript": {
+            "typescript": "$typescript"
+        }
     }
 }

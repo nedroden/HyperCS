@@ -1,0 +1,77 @@
+{
+    "settings": {
+        "title": "Einstellungen",
+        "saved": "Gespeichert.",
+        "unchanged": "Es gibt nichts zu speichern.",
+        "nav": {
+            "label": "Bereiche der Einstellungen",
+            "profile": "Profil",
+            "account": "Konto",
+            "password": "Passwort",
+            "preferences": "Präferenzen",
+            "sessions": "Aktive Sitzungen"
+        },
+        "profile": {
+            "title": "Profil",
+            "intro": "Diese Informationen sind für andere Mitglieder sichtbar.",
+            "avatar": "Profilbild",
+            "avatarHint": "Dein Profilbild zeigt den ersten Buchstaben deines Anzeigenamens.",
+            "displayName": "Anzeigename",
+            "location": "Wohnort",
+            "website": "Webseite",
+            "about": "Über mich",
+            "aboutHint": "Nur Text, bis zu {{max}} Zeichen.",
+            "save": "Profil speichern"
+        },
+        "account": {
+            "title": "Konto",
+            "intro": "Deine persönlichen Daten. Sie werden nie öffentlich angezeigt.",
+            "firstName": "Vorname",
+            "lastName": "Nachname",
+            "username": "Benutzername",
+            "usernameHint": "Benutzernamen können nicht geändert werden.",
+            "email": "E-Mail-Adresse",
+            "save": "Konto speichern"
+        },
+        "password": {
+            "title": "Passwort ändern",
+            "intro": "Wähle ein starkes Passwort, das du nirgendwo sonst verwendest.",
+            "current": "Aktuelles Passwort",
+            "new": "Neues Passwort",
+            "confirm": "Neues Passwort bestätigen",
+            "hint": "{{min}} bis {{max}} Zeichen.",
+            "revokeNote": "Wenn du dein Passwort änderst, wirst du auf allen anderen Geräten abgemeldet.",
+            "save": "Passwort ändern",
+            "success": "Dein Passwort wurde geändert. Alle anderen Geräte wurden abgemeldet."
+        },
+        "preferences": {
+            "title": "Präferenzen",
+            "intro": "Passe an, wie die Community für dich funktioniert.",
+            "language": "Sprache",
+            "languageHint": "Wird sofort übernommen.",
+            "timezone": "Zeitzone",
+            "notifications": "Benachrichtigungen",
+            "notifyReply": "Schreib mir eine E-Mail, wenn jemand auf meine Themen antwortet",
+            "notifyQuote": "Schreib mir eine E-Mail, wenn jemand meine Beiträge zitiert",
+            "notifyHint": "Deine Auswahl wird gespeichert, es werden aber noch keine E-Mails verschickt.",
+            "privacy": "Datenschutz",
+            "showOnline": "In der Liste der Benutzer, die online sind, anzeigen",
+            "save": "Präferenzen speichern"
+        },
+        "sessions": {
+            "title": "Aktive Sitzungen",
+            "intro": "Geräte, die gerade in deinem Konto angemeldet sind.",
+            "deviceCol": "Gerät",
+            "created": "Erstellt",
+            "lastActive": "Zuletzt aktiv",
+            "actions": "Aktionen",
+            "device": "{{browser}} auf {{os}}",
+            "unknownDevice": "Unbekanntes Gerät",
+            "thisDevice": "Dieses Gerät",
+            "revoke": "Beenden",
+            "revokeLabel": "Sitzung beenden: {{device}}",
+            "revoked": "Die Sitzung wurde beendet.",
+            "empty": "Es gibt keine aktiven Sitzungen."
+        }
+    }
+}

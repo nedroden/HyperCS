@@ -1,0 +1,106 @@
+{
+    "forum": {
+        "boardIndex": "Forenübersicht",
+        "topics_one": "{{count}} Thema",
+        "topics_other": "{{count}} Themen",
+        "posts_one": "{{count}} Beitrag",
+        "posts_other": "{{count}} Beiträge",
+        "by": "von",
+        "newTopic": "Neues Thema",
+        "columns": {
+            "topic": "Thema",
+            "replies": "Antworten",
+            "views": "Aufrufe",
+            "lastPost": "Letzter Beitrag"
+        },
+        "pinned": "Angeheftet",
+        "locked": "Gesperrt",
+        "startedBy": "Gestartet von",
+        "postReply": "Antworten",
+        "postCount": "Beiträge: {{count}}",
+        "joined": "Beigetreten:",
+        "role": {
+            "admin": "Admin",
+            "moderator": "Moderator",
+            "member": "Mitglied"
+        },
+        "permalink": "Link zu Beitrag {{number}}",
+        "edited": "Bearbeitet",
+        "editedBy": "Bearbeitet von {{name}}",
+        "quote": "Zitieren",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "replyHeading": "Antwort schreiben",
+        "replyPlaceholder": "Schreibe deine Antwort ...",
+        "replySubject": "Re: {{title}}",
+        "replyGuest": "<login>Melde dich an</login> oder <register>registriere dich</register>, um auf dieses Thema zu antworten.",
+        "replyLocked": "Dieses Thema ist gesperrt. Nur Moderatoren und Administratoren können antworten.",
+        "submit": "Absenden",
+        "guestBanner": "Du siehst das Forum als Gast. <login>Melde dich an</login> oder <register>registriere dich</register>, um Themen zu erstellen und zu antworten.",
+        "empty": {
+            "categoriesTitle": "Noch keine Foren",
+            "categoriesText": "Es gibt keine Foren, die angezeigt werden könnten.",
+            "topicsTitle": "Noch keine Themen",
+            "topicsText": "Starte die erste Diskussion in diesem Forum."
+        },
+        "stats": {
+            "title": "Statistik",
+            "intro": "Ein kurzer Überblick über das Geschehen in der Community.",
+            "topics": "Themen",
+            "posts": "Beiträge",
+            "members": "Mitglieder",
+            "boards": "Foren",
+            "newestMember": "Neuestes Mitglied:",
+            "latestPost": "Letzter Beitrag:",
+            "usersOnline_one": "{{count}} Benutzer online:",
+            "usersOnline_other": "{{count}} Benutzer online:"
+        },
+        "form": {
+            "title": "Titel",
+            "titleHint": "{{min}}–{{max}} Zeichen.",
+            "titlePlaceholder": "Gib deinem Thema einen Titel",
+            "message": "Nachricht",
+            "messagePlaceholder": "Schreibe deine Nachricht in Markdown ...",
+            "postTopic": "Thema erstellen",
+            "saveChanges": "Änderungen speichern",
+            "cancel": "Abbrechen"
+        },
+        "editPostTitle": "Beitrag bearbeiten",
+        "historyTitle": "Bearbeitungsverlauf",
+        "history": {
+            "link": "Bearbeitungsverlauf anzeigen",
+            "linkCount_one": "Bearbeitungsverlauf anzeigen ({{count}} Version)",
+            "linkCount_other": "Bearbeitungsverlauf anzeigen ({{count}} Versionen)",
+            "current": "Aktuelle Version",
+            "postedBy": "verfasst von {{name}}",
+            "editedBy": "bearbeitet von {{name}}",
+            "replaced": "Version ersetzt",
+            "restore": "Diese Version wiederherstellen",
+            "emptyTitle": "Keine früheren Versionen",
+            "emptyText": "Dieser Beitrag wurde noch nicht bearbeitet."
+        },
+        "deletePost": {
+            "title": "Beitrag löschen?",
+            "text": "Dieser Beitrag wird endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
+            "firstPostWarning": "Dies ist der erste Beitrag des Themas. Wenn du ihn löschst, wird das ganze Thema mit allen Antworten endgültig gelöscht. Das kann nicht rückgängig gemacht werden."
+        },
+        "deleteTopic": {
+            "title": "Thema löschen?",
+            "text": "Das Thema und alle seine Beiträge werden endgültig gelöscht. Das kann nicht rückgängig gemacht werden."
+        },
+        "moderation": {
+            "label": "Moderation",
+            "pin": "Thema anheften",
+            "unpin": "Thema lösen",
+            "lock": "Thema sperren",
+            "unlock": "Thema entsperren",
+            "move": "Thema verschieben",
+            "deleteTopic": "Thema löschen"
+        },
+        "move": {
+            "title": "Thema „{{title}}“ verschieben",
+            "destination": "Zielforum",
+            "submit": "Thema verschieben"
+        }
+    }
+}

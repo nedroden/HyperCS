@@ -21,7 +21,7 @@ a:hover {
 .btn {
     display: inline-block;
     background: var(--color-primary);
-    color: #fff;
+    color: var(--color-on-primary);
     border: 0;
     padding: 10px 20px;
     border-radius: 3px;
@@ -43,7 +43,7 @@ a:hover {
     cursor: pointer;
 }
 .site-nav .link-button {
-    color: #fff;
+    color: var(--color-on-primary);
     font-size: 14px;
     padding: 0 12px;
 }
@@ -61,21 +61,22 @@ select,
 textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-input);
     border-radius: 3px;
     font-family: inherit;
     font-size: 15px;
-    background: #fff;
+    background: var(--color-bg-input);
 }
 input:focus,
 select:focus,
 textarea:focus {
-    outline: none;
+    outline: var(--focus-ring);
+    outline-offset: 1px;
     border-color: var(--color-primary);
 }
 input[disabled] {
-    background: #f4f4f4;
-    color: #888;
+    background: var(--color-bg-disabled);
+    color: var(--color-text-faint);
 }
 input[type='checkbox'] {
     width: auto;
@@ -84,12 +85,64 @@ label {
     display: block;
     font-size: 14px;
     font-weight: 500;
-    color: #555;
+    color: var(--color-text-secondary);
     margin-bottom: 6px;
 }
 label.inline {
     display: inline;
     font-weight: 400;
     margin: 0;
-    color: #666;
+    color: var(--color-text-soft);
+}
+
+:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+}
+.site-nav :focus-visible,
+.hero :focus-visible,
+.stats-section :focus-visible {
+    outline: var(--focus-ring-on-primary);
+}
+.btn:focus-visible {
+    outline-offset: 3px;
+}
+
+.skip-link {
+    position: absolute;
+    left: 8px;
+    top: -100px;
+    z-index: 100;
+    padding: 10px 16px;
+    background: var(--color-bg-content);
+    color: var(--color-link);
+    border-radius: 3px;
+    box-shadow: var(--shadow-menu);
+}
+.skip-link:focus {
+    top: 8px;
+    text-decoration: none;
+}
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+.btn.secondary {
+    background: var(--color-bg-content);
+    color: var(--color-link);
+    border: 1px solid var(--color-border-input);
+}
+.btn.secondary:hover {
+    background: var(--color-bg-accent-soft);
+}
+.btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
 }

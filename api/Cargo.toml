@@ -15,7 +15,7 @@ axum = { version = "0.8.9", features = ["macros"] }
 axum-extra = { version = "0.10.2", features = ["cookie", "typed-header"] }
 tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread", "signal", "time"] }
 tower = "0.5.3"
-tower-http = { version = "0.6.6", features = ["trace", "cors", "set-header", "limit", "request-id", "util"] }
+tower-http = { version = "0.6.6", features = ["cors", "catch-panic"] }
 
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
@@ -37,6 +37,7 @@ tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
 uuid = { version = "1.18.1", features = ["v7", "serde"] }
 chrono = { version = "0.4.42", default-features = false, features = ["clock", "serde"] }
 time = "0.3.45"
+chrono-tz = { version = "0.10.4", default-features = false }
 
 validator = { version = "0.20.0", features = ["derive"] }
 argon2 = "0.5.3"
@@ -54,6 +55,12 @@ const_format = "0.2.34"
 anyhow = "1.0.100"
 
 http-body-util = "0.1.5"
+
+# Argon2 is unusably slow unoptimized; keep it fast in debug/test builds.
+[profile.dev.package.argon2]
+opt-level = 3
+[profile.dev.package.blake2]
+opt-level = 3
 
 [profile.release]
 opt-level = 2

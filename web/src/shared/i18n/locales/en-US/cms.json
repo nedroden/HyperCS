@@ -1,0 +1,16 @@
+{
+    "home": {
+        "latestNews": "Latest news",
+        "noNews": "There is no news yet.",
+        "loadError": "The homepage could not be loaded.",
+        "newsLoadError": "The news could not be loaded."
+    },
+    "news": {
+        "readMore": "Read more",
+        "showLess": "Show less"
+    },
+    "terms": {
+        "title": "Terms of service",
+        "loadError": "The terms of service could not be loaded."
+    }
+}

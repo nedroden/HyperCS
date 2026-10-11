@@ -1,30 +1,34 @@
 use chrono::{DateTime, Utc};
-use serde::Serialize;
-use sqlx::{FromRow, PgExecutor};
-use utoipa::ToSchema;
+use sqlx::{FromRow, PgConnection, PgExecutor};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, FromRow, Serialize, ToSchema)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, FromRow)]
 pub struct NewsItemRow {
     pub id: Uuid,
     pub title: String,
     pub slug: String,
     pub body: String,
-    pub author_display_name: Option<String>,
     pub published_at: DateTime<Utc>,
+    pub author_id: Option<Uuid>,
+    pub author_username: Option<String>,
+    pub author_display_name: Option<String>,
+    pub author_role: Option<String>,
 }
+
+const NEWS_SELECT: &str = "select n.id, n.title, n.slug, n.body, n.published_at, \
+    u.id as author_id, u.username as author_username, u.display_name as author_display_name, \
+    u.role as author_role \
+    from news_items n left join users u on u.id = n.author_id";
 
 pub async fn list<'e>(
     ex: impl PgExecutor<'e>,
     limit: i64,
     offset: i64,
 ) -> sqlx::Result<Vec<NewsItemRow>> {
-    sqlx::query_as::<_, NewsItemRow>(
-        "select n.id, n.title, n.slug, n.body, u.display_name as author_display_name, n.published_at \
-         from news_items n left join users u on u.id = n.author_id \
-         order by n.published_at desc limit $1 offset $2",
-    )
+    sqlx::query_as(const_format::concatcp!(
+        NEWS_SELECT,
+        " order by n.published_at desc, n.id desc limit $1 offset $2"
+    ))
     .bind(limit)
     .bind(offset)
     .fetch_all(ex)
@@ -38,27 +42,21 @@ pub async fn count<'e>(ex: impl PgExecutor<'e>) -> sqlx::Result<i64> {
     Ok(row.0)
 }
 
-pub async fn get_by_slug<'e>(
-    ex: impl PgExecutor<'e>,
-    slug: &str,
-) -> sqlx::Result<Option<NewsItemRow>> {
-    sqlx::query_as::<_, NewsItemRow>(
-        "select n.id, n.title, n.slug, n.body, u.display_name as author_display_name, n.published_at \
-         from news_items n left join users u on u.id = n.author_id where n.slug = $1",
-    )
-    .bind(slug)
-    .fetch_optional(ex)
-    .await
+pub async fn get<'e>(ex: impl PgExecutor<'e>, id: Uuid) -> sqlx::Result<Option<NewsItemRow>> {
+    sqlx::query_as(const_format::concatcp!(NEWS_SELECT, " where n.id = $1"))
+        .bind(id)
+        .fetch_optional(ex)
+        .await
 }
 
-pub async fn get<'e>(ex: impl PgExecutor<'e>, id: Uuid) -> sqlx::Result<Option<NewsItemRow>> {
-    sqlx::query_as::<_, NewsItemRow>(
-        "select n.id, n.title, n.slug, n.body, u.display_name as author_display_name, n.published_at \
-         from news_items n left join users u on u.id = n.author_id where n.id = $1",
-    )
-    .bind(id)
-    .fetch_optional(ex)
-    .await
+pub async fn get_for_update(
+    ex: &mut PgConnection,
+    id: Uuid,
+) -> sqlx::Result<Option<(String, String)>> {
+    sqlx::query_as("select title, body from news_items where id = $1 for update")
+        .bind(id)
+        .fetch_optional(ex)
+        .await
 }
 
 pub async fn create<'e>(

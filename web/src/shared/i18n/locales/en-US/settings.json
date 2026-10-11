@@ -1,0 +1,77 @@
+{
+    "settings": {
+        "title": "Settings",
+        "saved": "Saved.",
+        "unchanged": "There is nothing to save.",
+        "nav": {
+            "label": "Settings sections",
+            "profile": "Profile",
+            "account": "Account",
+            "password": "Password",
+            "preferences": "Preferences",
+            "sessions": "Active sessions"
+        },
+        "profile": {
+            "title": "Profile",
+            "intro": "This information is visible to other members.",
+            "avatar": "Avatar",
+            "avatarHint": "Your avatar shows the first letter of your display name.",
+            "displayName": "Display name",
+            "location": "Location",
+            "website": "Website",
+            "about": "About me",
+            "aboutHint": "Plain text, up to {{max}} characters.",
+            "save": "Save profile"
+        },
+        "account": {
+            "title": "Account",
+            "intro": "Your personal information. This is never shown publicly.",
+            "firstName": "First name",
+            "lastName": "Last name",
+            "username": "Username",
+            "usernameHint": "Usernames cannot be changed.",
+            "email": "Email address",
+            "save": "Save account"
+        },
+        "password": {
+            "title": "Change password",
+            "intro": "Choose a strong password you don't use elsewhere.",
+            "current": "Current password",
+            "new": "New password",
+            "confirm": "Confirm new password",
+            "hint": "{{min}} to {{max}} characters.",
+            "revokeNote": "Changing your password signs you out on all your other devices.",
+            "save": "Change password",
+            "success": "Your password was changed. All other devices were signed out."
+        },
+        "preferences": {
+            "title": "Preferences",
+            "intro": "Customize how the community works for you.",
+            "language": "Language",
+            "languageHint": "Applied right away.",
+            "timezone": "Time zone",
+            "notifications": "Notifications",
+            "notifyReply": "Email me when someone replies to my topics",
+            "notifyQuote": "Email me when someone quotes my posts",
+            "notifyHint": "Your choice is saved, but no emails are sent yet.",
+            "privacy": "Privacy",
+            "showOnline": "Show me in the list of users online",
+            "save": "Save preferences"
+        },
+        "sessions": {
+            "title": "Active sessions",
+            "intro": "Devices currently signed in to your account.",
+            "deviceCol": "Device",
+            "created": "Created",
+            "lastActive": "Last active",
+            "actions": "Actions",
+            "device": "{{browser}} on {{os}}",
+            "unknownDevice": "Unknown device",
+            "thisDevice": "This device",
+            "revoke": "Revoke",
+            "revokeLabel": "Revoke session: {{device}}",
+            "revoked": "The session was revoked.",
+            "empty": "There are no active sessions."
+        }
+    }
+}

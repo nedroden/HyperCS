@@ -2,36 +2,33 @@
     position: relative;
     margin-left: auto;
 }
-.lang summary {
-    list-style: none;
+.lang-toggle {
+    font: inherit;
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 6px 10px;
-    background: #fff;
-    border: 1px solid #d8d8d8;
+    background: var(--color-bg-content);
+    border: 1px solid var(--color-border-control);
     border-radius: 6px;
     cursor: pointer;
     user-select: none;
-    color: #333;
+    color: var(--color-text-strong);
 }
-.lang summary::-webkit-details-marker {
-    display: none;
-}
-.lang summary:hover,
-.lang[open] summary {
+.lang-toggle:hover,
+.lang-toggle[aria-expanded='true'] {
     border-color: var(--color-primary);
 }
-.lang summary::after {
+.lang-toggle::after {
     content: '';
     width: 6px;
     height: 6px;
-    border-right: 2px solid #777;
-    border-bottom: 2px solid #777;
+    border-right: 2px solid var(--color-text-muted);
+    border-bottom: 2px solid var(--color-text-muted);
     transform: rotate(45deg) translateY(-2px);
     margin-left: 2px;
 }
-.lang[open] summary::after {
+.lang-toggle[aria-expanded='true']::after {
     transform: rotate(-135deg) translateY(-2px);
 }
 .lang-menu {
@@ -42,10 +39,10 @@
     margin: 0;
     padding: 4px;
     list-style: none;
-    background: #fff;
-    border: 1px solid #d8d8d8;
+    background: var(--color-bg-content);
+    border: 1px solid var(--color-border-control);
     border-radius: 6px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-menu);
     z-index: 10;
 }
 .lang-menu button {
@@ -58,17 +55,17 @@
     border-radius: 4px;
     background: none;
     font: inherit;
-    color: #333;
+    color: var(--color-text-strong);
     cursor: pointer;
     text-align: left;
 }
 .lang-menu button:hover {
-    background: #f0f5fa;
+    background: var(--color-bg-accent-soft);
 }
-.lang-menu button[aria-current='true'] {
+.lang-menu button[aria-checked='true'] {
     font-weight: 500;
 }
-.lang-menu button[aria-current='true']::after {
+.lang-menu button[aria-checked='true']::after {
     content: '\2713';
     margin-left: auto;
     color: var(--color-link);

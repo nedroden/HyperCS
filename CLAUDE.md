@@ -4,12 +4,12 @@ Open-source community software: a small CMS (homepage, news) combined with a dis
 
 ## Status
 
-Both projects are bootstrapped (health endpoint, app shell, i18n, language switcher) but no product features exist yet.
+The MVP is implemented in both projects: accounts and sessions, forum (categories, boards, topics, posts with edit history, moderation), CMS (homepage, news, terms), admin screens, settings, i18n (en-US, de). **Start with `planning/status.md`** (where we left off, how to verify, next steps); see `planning/mvp-plan.md` for the plan and decisions and `planning/requirements.md` for the requirements.
 
 - `mocks/` – static HTML mockups of every page (English only, plain HTML/CSS, one file per page). These are the visual and behavioural reference for the UI.
-- `planning/requirements.md` – numbered requirements (R-G*, R-C*, R-A*, R-F*) derived from the mocks, with open questions at the end.
+- `planning/requirements.md` – numbered requirements (R-G*, R-C*, R-A*, R-F*) derived from the mocks, with resolved questions and known gaps at the end.
 - `api/` – Rust API (axum, sqlx). `web/` – React + Vite + TypeScript app.
-- `docker-compose.yml` – local stack: PostgreSQL, API, and the web dev server (`docker compose up --build`; web on :5173, API on :8080).
+- `docker-compose.yml` – local stack: PostgreSQL, API, and the web dev server (`docker compose up --build`, or `docker-compose up --build` with the standalone binary; web on :5173, API on :8080; the API bootstraps an admin from `ADMIN_*` and seeds the sample structure; Swagger UI at :8080/api/v1/docs).
 
 ## Target architecture
 

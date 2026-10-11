@@ -1,15 +1,68 @@
-/* Design tokens taken from mocks/*.html */
+/* Design tokens taken from mocks/*.html. Every color, font, gradient and shadow used by the theme lives here. */
 :root {
     --font: Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'Courier New', monospace;
+
+    /* Text */
     --color-text: #444;
     --color-heading: #000;
+    --color-text-dark: #222;
+    --color-text-strong: #333;
+    --color-text-secondary: #555;
+    --color-text-soft: #666;
+    --color-text-muted: #777;
+    --color-text-faint: #888;
+    --color-text-disabled: #aaa;
     --color-link: #3c7ab5;
+    --color-on-primary: #fff;
+    --color-on-primary-soft: #e6eef6;
+
+    /* Brand */
     --color-primary: #4a82b8;
     --color-primary-hover: #3c70a3;
+
+    /* Backgrounds */
     --color-bg-page: #ebebeb;
     --color-bg-content: #fff;
+    --color-bg-input: #fff;
     --color-bg-section: #eee;
+    --color-bg-subtle: #f7f7f7;
+    --color-bg-box: #f4f4f4;
+    --color-bg-hover: #fafafa;
+    --color-bg-hover-strong: #f0f0f0;
+    --color-bg-accent-soft: #f0f5fa;
+    --color-bg-badge-muted: #999;
+    --color-bg-disabled: #f4f4f4;
+
+    /* Borders */
     --color-border: #e8e8e8;
+    --color-border-subtle: #eee;
+    --color-border-input: #ddd;
+    --color-border-control: #d8d8d8;
+    --color-border-dashed: #ccc;
+
+    /* Feedback */
+    --color-error: #b3261d;
+    --color-error-bg: #fdecea;
+    --color-error-border: #e8a8a3;
+    --color-error-hover: #8f1f18;
+    --color-backdrop: rgba(0, 0, 0, 0.45);
+    --color-bg-info: #eef4fb;
+    --color-border-info: #cfe0f0;
+    --color-bg-current: #e7f0f8;
+    --color-text-current: #2d5d8a;
+    --color-success: #2e7d32;
+    --color-success-bg: #edf7ee;
+    --color-code-bg: #f4f4f4;
+
+    /* Focus */
+    --color-focus-ring: #1d5fa3;
+    --focus-ring: 2px solid var(--color-focus-ring);
+    --focus-ring-on-primary: 2px solid var(--color-on-primary);
+
+    /* Effects */
+    --color-flag-outline: rgba(0, 0, 0, 0.15);
+    --shadow-menu: 0 4px 14px rgba(0, 0, 0, 0.12);
     --gradient-header: linear-gradient(
         135deg,
         #f4f4f4 0%,
@@ -22,5 +75,14 @@
         #6a9bc8 70%,
         #77a6d0 100%
     );
+    --gradient-hero: linear-gradient(135deg, #4a82b8 0%, #77a6d0 100%);
+    --gradient-avatar: linear-gradient(135deg, #4a82b8, #77a6d0);
+
+    /* Layout */
     --max-width: 1632px;
+    --min-width: 320px;
+    --logo-height: 48px;
+    --logo-height-small: 32px;
+    --header-height: 101px;
+    --header-height-small: 70px;
 }

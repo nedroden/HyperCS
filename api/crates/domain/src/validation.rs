@@ -1,39 +1,58 @@
 //! Text normalization and validation shared by request DTOs and services.
-//! Keep these pure (no I/O) so they can run both client-independent checks
-//! and be unit tested cheaply.
+//! Pure functions (no I/O) so they are cheap to unit test.
 
 use unicode_normalization::UnicodeNormalization;
 
 use crate::constants::RESERVED_USERNAMES;
 
-/// Trim, normalize to NFC, normalize line endings to `\n`, and reject control
-/// characters (newlines/tabs allowed only if `multiline`; otherwise they are
-/// replaced with a single space rather than dropped).
-pub fn normalize_text(input: &str, multiline: bool) -> String {
-    let normalized_newlines = input.replace("\r\n", "\n").replace('\r', "\n");
-    let nfc: String = normalized_newlines.nfc().collect();
-    let mapped: String = nfc
+/// Error code reported for control or invisible characters.
+pub const INVALID_CHARACTERS: &str = "invalid_characters";
+
+/// Characters that render invisibly or reorder text and have no business in a
+/// single-line field such as a name or title.
+fn is_invisible_format(c: char) -> bool {
+    matches!(
+        c,
+        '\u{200B}'..='\u{200F}' // zero-width space/joiners, LRM/RLM
+            | '\u{2028}'..='\u{202E}' // line/paragraph separators, bidi embeddings and overrides
+            | '\u{2060}'..='\u{2064}' // word joiner and invisible operators
+            | '\u{2066}'..='\u{2069}' // bidi isolates
+            | '\u{FEFF}'
+    )
+}
+
+/// Normalizes a single-line field: NFC, trimmed. Rejects (rather than
+/// silently strips) control characters, line breaks and invisible/bidi
+/// formatting characters.
+pub fn normalize_line(input: &str) -> Result<String, &'static str> {
+    let nfc: String = input.nfc().collect();
+    let trimmed = nfc.trim();
+    if trimmed
         .chars()
-        .filter_map(|c| match c {
-            '\n' | '\t' if multiline => Some(c),
-            '\n' | '\t' => Some(' '),
-            c if c.is_control() => None,
-            c => Some(c),
-        })
-        .collect();
-    mapped.trim().to_string()
+        .any(|c| c.is_control() || is_invisible_format(c))
+    {
+        return Err(INVALID_CHARACTERS);
+    }
+    Ok(trimmed.to_string())
 }
 
-/// Rejects zero-width characters some fonts render invisibly.
-pub fn contains_zero_width(input: &str) -> bool {
-    input.chars().any(|c| {
-        matches!(
-            c,
-            '\u{200B}' | '\u{200C}' | '\u{200D}' | '\u{FEFF}' | '\u{2060}'
-        )
-    })
+/// Normalizes a multi-line text: line endings become `\n`, NFC. Control
+/// characters are rejected except newline and tab. With `trim` the result is
+/// also trimmed (used for short descriptions); Markdown bodies are otherwise
+/// stored exactly as submitted.
+pub fn normalize_multiline(input: &str, trim: bool) -> Result<String, &'static str> {
+    let unified = input.replace("\r\n", "\n").replace('\r', "\n");
+    let nfc: String = unified.nfc().collect();
+    if nfc
+        .chars()
+        .any(|c| c.is_control() && c != '\n' && c != '\t')
+    {
+        return Err(INVALID_CHARACTERS);
+    }
+    Ok(if trim { nfc.trim().to_string() } else { nfc })
 }
 
+/// True for a username made only of `[A-Za-z0-9_-]`.
 pub fn is_valid_username_chars(username: &str) -> bool {
     !username.is_empty()
         && username
@@ -46,12 +65,65 @@ pub fn is_reserved_username(username: &str) -> bool {
     RESERVED_USERNAMES.contains(&lower.as_str())
 }
 
-/// Lowercase ASCII slug: non-alphanumeric runs collapsed to `-`, trimmed,
-/// truncated. Cosmetic only (the UUID is authoritative); collisions are fine.
-pub fn slugify(input: &str, max_len: usize) -> String {
+/// Only `http://` and `https://` URLs with a host are accepted for websites.
+pub fn is_http_url(value: &str) -> bool {
+    let Some(rest) = value
+        .strip_prefix("https://")
+        .or_else(|| value.strip_prefix("http://"))
+    else {
+        return false;
+    };
+    let host = rest.split(['/', '?', '#']).next().unwrap_or("");
+    !host.is_empty() && !value.chars().any(|c| c.is_whitespace() || c.is_control())
+}
+
+/// True if `value` is a known IANA time zone name (or `UTC`).
+pub fn is_valid_timezone(value: &str) -> bool {
+    value.parse::<chrono_tz::Tz>().is_ok()
+}
+
+/// German transliteration first (so `Müller` becomes `mueller`, not
+/// `muller`), then a generic ASCII fold for everything else.
+fn fold_char(c: char, out: &mut String) {
+    match c {
+        'ä' => out.push_str("ae"),
+        'ö' => out.push_str("oe"),
+        'ü' => out.push_str("ue"),
+        'ß' => out.push_str("ss"),
+        'æ' => out.push_str("ae"),
+        'œ' => out.push_str("oe"),
+        'ø' => out.push('o'),
+        'đ' => out.push('d'),
+        'ł' => out.push('l'),
+        'þ' => out.push_str("th"),
+        c if c.is_ascii() => out.push(c),
+        c => {
+            // Decompose (é -> e + U+0301) and keep the ASCII base letters;
+            // combining marks and everything else non-ASCII are dropped.
+            for d in std::iter::once(c).nfd() {
+                if d.is_ascii() {
+                    out.push(d);
+                }
+            }
+        }
+    }
+}
+
+/// Cosmetic URL slug: lowercase ASCII, German umlauts transliterated, other
+/// accents folded, non-alphanumeric runs collapsed to `-`, truncated to
+/// `max_len`. `fallback` is used when nothing usable remains. The UUID is
+/// authoritative in URLs, so collisions are fine.
+pub fn slugify(input: &str, max_len: usize, fallback: &str) -> String {
+    let folded: String = {
+        let mut out = String::with_capacity(input.len());
+        for c in input.nfc().flat_map(char::to_lowercase) {
+            fold_char(c, &mut out);
+        }
+        out
+    };
     let mut slug = String::new();
-    let mut last_was_dash = true; // suppress leading dash
-    for c in input.to_lowercase().chars() {
+    let mut last_was_dash = true; // suppress a leading dash
+    for c in folded.chars() {
         if c.is_ascii_alphanumeric() {
             slug.push(c);
             last_was_dash = false;
@@ -60,15 +132,12 @@ pub fn slugify(input: &str, max_len: usize) -> String {
             last_was_dash = true;
         }
     }
-    while slug.ends_with('-') {
-        slug.pop();
-    }
     slug.truncate(max_len);
     while slug.ends_with('-') {
         slug.pop();
     }
     if slug.is_empty() {
-        "topic".to_string()
+        fallback.to_string()
     } else {
         slug
     }
@@ -79,18 +148,46 @@ mod tests {
     use super::*;
 
     #[test]
-    fn normalize_trims_and_collapses_newlines_when_single_line() {
-        assert_eq!(normalize_text("  hello\r\nworld  ", false), "hello world");
+    fn line_trims_and_normalizes_to_nfc() {
+        assert_eq!(normalize_line("  hello  ").as_deref(), Ok("hello"));
+        // "e" + combining acute becomes the single precomposed character.
+        assert_eq!(normalize_line("e\u{0301}").as_deref(), Ok("\u{00e9}"));
     }
 
     #[test]
-    fn normalize_keeps_newlines_when_multiline() {
-        assert_eq!(normalize_text(" hi\r\nthere ", true), "hi\nthere");
+    fn line_rejects_control_newline_and_invisible_characters() {
+        assert_eq!(normalize_line("a\u{0007}b"), Err(INVALID_CHARACTERS));
+        assert_eq!(normalize_line("a\nb"), Err(INVALID_CHARACTERS));
+        assert_eq!(normalize_line("a\tb"), Err(INVALID_CHARACTERS));
+        assert_eq!(normalize_line("a\u{200B}b"), Err(INVALID_CHARACTERS));
+        assert_eq!(normalize_line("a\u{202E}b"), Err(INVALID_CHARACTERS));
+        assert_eq!(normalize_line("a\0b"), Err(INVALID_CHARACTERS));
     }
 
     #[test]
-    fn normalize_strips_control_chars() {
-        assert_eq!(normalize_text("a\u{0007}b", false), "ab");
+    fn line_trailing_newline_is_just_trimmed() {
+        assert_eq!(normalize_line("title\r\n").as_deref(), Ok("title"));
+    }
+
+    #[test]
+    fn multiline_normalizes_line_endings_and_keeps_text_as_submitted() {
+        assert_eq!(
+            normalize_multiline(" hi\r\nthere\rfriend\t! ", false).as_deref(),
+            Ok(" hi\nthere\nfriend\t! ")
+        );
+        assert_eq!(normalize_multiline(" hi ", true).as_deref(), Ok("hi"));
+    }
+
+    #[test]
+    fn multiline_rejects_control_characters_but_allows_newline_and_tab() {
+        assert_eq!(
+            normalize_multiline("a\u{0007}b", false),
+            Err(INVALID_CHARACTERS)
+        );
+        assert_eq!(normalize_multiline("a\0b", false), Err(INVALID_CHARACTERS));
+        assert!(normalize_multiline("a\n\tb", false).is_ok());
+        // ZWJ is legitimate inside emoji sequences in post bodies.
+        assert!(normalize_multiline("👨\u{200D}👩", false).is_ok());
     }
 
     #[test]
@@ -105,19 +202,58 @@ mod tests {
     fn reserved_usernames_case_insensitive() {
         assert!(is_reserved_username("Admin"));
         assert!(is_reserved_username("ROOT"));
+        assert!(is_reserved_username("Moderator"));
         assert!(!is_reserved_username("robert"));
     }
 
     #[test]
-    fn slugify_basic() {
-        assert_eq!(slugify("Hello, World!", 80), "hello-world");
-        assert_eq!(slugify("  multiple   spaces  ", 80), "multiple-spaces");
-        assert_eq!(slugify("日本語", 80), "topic");
+    fn http_urls() {
+        assert!(is_http_url("https://example.com"));
+        assert!(is_http_url("http://example.com/path?q=1"));
+        assert!(!is_http_url("javascript:alert(1)"));
+        assert!(!is_http_url("ftp://example.com"));
+        assert!(!is_http_url("https://"));
+        assert!(!is_http_url("https://exa mple.com"));
     }
 
     #[test]
-    fn slugify_truncates() {
+    fn timezones() {
+        assert!(is_valid_timezone("UTC"));
+        assert!(is_valid_timezone("Europe/Berlin"));
+        assert!(!is_valid_timezone("Mars/Olympus"));
+        assert!(!is_valid_timezone(""));
+    }
+
+    #[test]
+    fn slugify_basic() {
+        assert_eq!(slugify("Hello, World!", 80, "topic"), "hello-world");
+        assert_eq!(
+            slugify("  multiple   spaces  ", 80, "topic"),
+            "multiple-spaces"
+        );
+        assert_eq!(slugify("日本語", 80, "topic"), "topic");
+        assert_eq!(slugify("日本語", 80, "news"), "news");
+    }
+
+    #[test]
+    fn slugify_transliterates_german_before_folding() {
+        assert_eq!(slugify("Müller", 80, "x"), "mueller");
+        assert_eq!(slugify("Größe Äpfel Öl", 80, "x"), "groesse-aepfel-oel");
+        assert_eq!(slugify("ÜBER STRAßE", 80, "x"), "ueber-strasse");
+        // Decomposed input (u + combining diaeresis) must behave the same.
+        assert_eq!(slugify("Mu\u{0308}ller", 80, "x"), "mueller");
+    }
+
+    #[test]
+    fn slugify_folds_other_accents_to_ascii() {
+        assert_eq!(slugify("Café déjà vu", 80, "x"), "cafe-deja-vu");
+        assert_eq!(slugify("Łódź & Øre", 80, "x"), "lodz-ore");
+    }
+
+    #[test]
+    fn slugify_truncates_without_trailing_dash() {
         let long = "a".repeat(200);
-        assert_eq!(slugify(&long, 10).len(), 10);
+        assert_eq!(slugify(&long, 10, "x").len(), 10);
+        assert_eq!(slugify("abcd efgh", 5, "x"), "abcd");
     }
 }

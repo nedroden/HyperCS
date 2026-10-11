@@ -1,46 +1,81 @@
 import { useTranslation } from 'react-i18next';
-import { ApiStatus } from '@/entities/api-health';
-import { useRelativeTime } from '@/shared/lib';
-import { features, news } from '../model/placeholder';
+import { Link } from 'react-router-dom';
+import { useHomepage } from '@/entities/cms-page';
+import { NewsItemCard, useNewsList } from '@/entities/news-item';
+import { useSession } from '@/entities/session';
+import { useSiteSettings } from '@/entities/site-setting';
+import { EmptyState, ErrorState, Loading } from '@/shared/ui';
 
-export function HomePage() {
+const LATEST_NEWS_COUNT = 5;
+
+function LatestNews() {
     const { t } = useTranslation();
-    const ago = useRelativeTime();
+    const news = useNewsList({ perPage: LATEST_NEWS_COUNT });
     return (
         <>
-            <section className="hero">
-                <h2>{t('home.title')}</h2>
-                <p>{t('home.intro')}</p>
-                <a className="btn" href="#">
-                    {t('home.learnMore')}
-                </a>
-            </section>
-
-            <section className="features">
-                {features.map((f) => (
-                    <div className="feature" key={f.title}>
-                        <h3>{f.title}</h3>
-                        <p>{f.text}</p>
-                    </div>
-                ))}
-            </section>
-
             <div className="section-head">
                 <h3>{t('home.latestNews')}</h3>
             </div>
-            <section className="news">
-                {news.map((n) => (
-                    <article key={n.title}>
-                        <h4>
-                            <a href="#">{n.title}</a>
-                        </h4>
-                        <div className="date">{ago(n.days)}</div>
-                        <p>{n.text}</p>
-                    </article>
-                ))}
-            </section>
+            {news.isPending ? (
+                <Loading />
+            ) : news.isError ? (
+                <ErrorState
+                    text={t('home.newsLoadError')}
+                    onRetry={() => void news.refetch()}
+                />
+            ) : news.data.items.length === 0 ? (
+                <EmptyState text={t('home.noNews')} />
+            ) : (
+                <section className="news">
+                    {news.data.items.map((item) => (
+                        <NewsItemCard key={item.id} item={item} />
+                    ))}
+                </section>
+            )}
+        </>
+    );
+}
 
-            <ApiStatus />
+/** Public homepage: hero, three feature blocks and the latest news, all loaded from the CMS API. */
+export function HomePage() {
+    const { t } = useTranslation();
+    const { status } = useSession();
+    const homepage = useHomepage();
+    const slogan = useSiteSettings().data?.slogan;
+
+    return (
+        <>
+            {homepage.isPending ? (
+                <Loading />
+            ) : homepage.isError ? (
+                <ErrorState
+                    text={t('home.loadError')}
+                    onRetry={() => void homepage.refetch()}
+                />
+            ) : (
+                <>
+                    <section className="hero">
+                        <h2>{homepage.data.heroHeading}</h2>
+                        {slogan && <p>{slogan}</p>}
+                        {status === 'guest' && (
+                            <Link className="btn" to="/register">
+                                {homepage.data.heroButtonLabel}
+                            </Link>
+                        )}
+                    </section>
+
+                    <section className="features">
+                        {homepage.data.features.map((feature, index) => (
+                            <div className="feature" key={index}>
+                                <h3>{feature.title}</h3>
+                                <p>{feature.text}</p>
+                            </div>
+                        ))}
+                    </section>
+                </>
+            )}
+
+            <LatestNews />
         </>
     );
 }

@@ -1,0 +1,19 @@
+{
+    "profile": {
+        "title": "Member profile",
+        "joined": "joined",
+        "posts_one": "{{count}} post",
+        "posts_other": "{{count}} posts",
+        "about": "About me",
+        "role": {
+            "member": "Member",
+            "moderator": "Moderator",
+            "admin": "Administrator"
+        },
+        "notFound": {
+            "title": "Member not found",
+            "text": "There is no member with this username.",
+            "back": "Back to the forum"
+        }
+    }
+}
